@@ -1,0 +1,57 @@
+ID,Épica,Historia,Criterios de aceptación,Prioridad,SP,Sprint
+US-001,Seguridad,Como usuario quiero iniciar sesión para acceder al sistema según mi rol.,Inicio de sesión con correo y contraseña; validar credenciales; mostrar error si son incorrectas; redirigir según el rol.,Alta,5,1
+US-002,Seguridad,Como administrador quiero registrar usuarios.,Registrar nombres, correo, contraseña, teléfono y rol; el correo debe ser único.,Alta,5,1
+US-003,Seguridad,Como administrador quiero editar usuarios.,Permitir modificar datos excepto el historial generado.,Media,3,1
+US-004,Seguridad,Como administrador quiero desactivar usuarios.,El usuario no podrá iniciar sesión; no se elimina el historial.,Media,3,1
+US-005,Seguridad,Como administrador quiero asignar roles a los usuarios.,Solo Administrador puede cambiar roles.,Alta,3,1
+US-006,Seguridad,Como usuario quiero cerrar sesión.,Finaliza la sesión y vuelve al login.,Baja,1,1
+US-007,Gestion de Productos,Registrar productos.,Código único, categoría, laboratorio, unidad de medida, temperatura, stock mínimo.,Alta,5,1
+US-008,Gestion de Productos,Editar productos.,Modificar información sin perder historial.,Alta,3,1
+US-009,Gestion de Productos,Desactivar productos.,No aparecerá para nuevas ventas pero conservará historial.,Media,3,1
+US-010,Gestion de Productos,Buscar productos.,Buscar por código, nombre, categoría o laboratorio.,Alta,5,1
+US-011,Gestion de Productos,Consultar información de un producto.,Mostrar datos generales, stock, lotes y ubicaciones.,Alta,3,1
+US-012,Gestion de Productos,Registrar categorías.,Crear, editar y desactivar categorías.,Media,2,1
+US-013,Gestion de Productos,Registrar laboratorios.,Crear, editar y desactivar laboratorios.,Baja,2,1
+US-014,Gestion de Productos,Registrar unidades de medida.,Crear, editar y desactivar unidades.,Baja,2,1
+US-015,Proveedores,Registrar proveedor.,Registrar RUC, nombre, correo, teléfono y dirección.,Alta,3,1
+US-016,Proveedores,Editar proveedor.,Actualizar información.,Media,2,1
+US-017,Proveedores,Buscar proveedor.,Buscar por nombre o RUC.,Baja,2,1
+US-018,Clientes,Registrar cliente.,Registrar datos generales.,Alta,3,1
+US-019,Clientes,Editar cliente.,Actualizar información.,Media,2,1
+US-020,Clientes,Buscar cliente.,Buscar por nombre o RUC.,Alta,2,1
+US-021,Clientes,Consultar historial del cliente.,Mostrar ventas realizadas.,Media,5,2
+US-022,Compras,Registrar compra.,Asociar proveedor, fecha y factura.,Muy Alta,8,1
+US-023,Compras,Registrar detalle de compra.,Agregar productos, cantidades y precio de compra.,Muy Alta,8,1
+US-024,Compras,Registrar lotes.,Registrar número de lote y fecha de caducidad.,Muy Alta,8,1
+US-025,Compras,Registrar ubicación inicial.,Asignar una o varias ubicaciones y cantidades por lote.,Muy Alta,5,1
+US-026,Compras,Actualizar stock automáticamente.,El stock aumenta al confirmar la compra.,Muy Alta,5,1
+US-027,Compras,Consultar historial de compras.,Filtrar por fecha o proveedor.,Media,3,2
+US-028,Inventario,Consultar inventario.,Mostrar stock disponible.,Alta,5,2
+US-029,Inventario,Consultar lotes por producto.,Mostrar lotes, cantidades y caducidad.,Alta,5,2
+US-030,Inventario,Reubicar lotes.,Permitir mover cantidades entre ubicaciones.,Alta,8,2
+US-031,Inventario,Registrar ajustes.,Registrar motivo del ajuste.,Media,5,2
+US-032,Inventario,Consultar movimientos.,Mostrar entradas, salidas y reubicaciones.,Alta,5,2
+US-033,Inventario,Alertar stock bajo.,Mostrar alerta cuando el stock sea menor al mínimo.,Alta,3,2
+US-034,Inventario,Alertar productos próximos a caducar.,Configurable por cantidad de días.,Muy Alta,5,2
+US-035,Inventario,Mostrar productos vencidos.,Identificar productos vencidos.,Alta,3,2
+US-036,Ventas,Registrar venta.,Registrar cliente y vendedor.,Muy Alta,8,2
+US-037,Ventas,Agregar productos a la venta.,Registrar cantidad y precio.,Muy Alta,5,2
+US-038,Ventas,Seleccionar lote FEFO automáticamente.,Elegir el lote más próximo a vencer.,Muy Alta,8,2
+US-039,Ventas,Permitir seleccionar lote manualmente.,Solo cuando sea necesario.,Alta,5,2
+US-040,Ventas,Descontar inventario automáticamente.,Actualizar stock y lotes.,Muy Alta,5,2
+US-041,Ventas,Aplicar descuentos.,Solo usuarios autorizados.,Media,3,2
+US-042,Ventas,Anular venta.,Solo Administrador; registrar motivo.,Alta,5,2
+US-043,Comisiones,Calcular comisión automáticamente.,Basada en el porcentaje configurado.,Alta,5,2
+US-044,Comisiones,Modificar porcentaje de comisión.,Solo Administrador.,Media,3,2
+US-045,Comisiones,Consultar comisiones pendientes.,Filtrar por vendedor.,Media,3,2
+US-046,Comisiones,Registrar pago de comisión.,Registrar fecha y administrador que autorizó.,Media,5,2
+US-047,Comisiones,Consultar historial de comisiones.,Mostrar estado y pagos.,Baja,2,2
+US-048,Reportes,Reporte de inventario.,Exportar PDF y Excel.,Alta,5,2
+US-049,Reportes,Reporte de ventas.,Filtrar por fechas.,Alta,5,2
+US-050,Reportes,Reporte de compras.,Filtrar por proveedor y fecha.,Media,5,2
+US-051,Reportes,Reporte de bajo stock.,Mostrar productos críticos.,Alta,3,2
+US-052,Reportes,Reporte de productos próximos a vencer.,Filtrar por rango de días.,Alta,3,2
+US-053,Configuración,Configurar IVA.,Permitir modificar el porcentaje.,Media,3,2
+US-054,Configuración,Configurar comisión por defecto.,Aplicar a nuevas ventas.,Media,3,2
+US-055,Configuración,Configurar datos de la empresa.,Modificar nombre, RUC, dirección y contacto.,Baja,2,2
+

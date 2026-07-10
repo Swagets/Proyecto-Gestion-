@@ -1,0 +1,129 @@
+﻿Issue Type,Summary,Description,Parent,Labels,Priority
+Task,Diseñar interfaz,HU-01. Iniciar sesión,HU-01,frontend,Medium
+Task,Implementar lógica,HU-01. Iniciar sesión,HU-01,backend,Medium
+Task,Crear/Actualizar modelo,HU-01. Iniciar sesión,HU-01,database,Medium
+Task,Realizar pruebas,HU-01. Iniciar sesión,HU-01,testing,Medium
+Task,Actualizar documentación,HU-01. Iniciar sesión,HU-01,documentation,Medium
+Task,Diseñar interfaz,HU-02. Registrar usuario,HU-02,frontend,Medium
+Task,Implementar lógica,HU-02. Registrar usuario,HU-02,backend,Medium
+Task,Crear/Actualizar modelo,HU-02. Registrar usuario,HU-02,database,Medium
+Task,Realizar pruebas,HU-02. Registrar usuario,HU-02,testing,Medium
+Task,Actualizar documentación,HU-02. Registrar usuario,HU-02,documentation,Medium
+Task,Diseñar interfaz,HU-03. Editar usuario,HU-03,frontend,Medium
+Task,Implementar lógica,HU-03. Editar usuario,HU-03,backend,Medium
+Task,Crear/Actualizar modelo,HU-03. Editar usuario,HU-03,database,Medium
+Task,Realizar pruebas,HU-03. Editar usuario,HU-03,testing,Medium
+Task,Actualizar documentación,HU-03. Editar usuario,HU-03,documentation,Medium
+Task,Diseñar interfaz,HU-04. Desactivar usuario,HU-04,frontend,Medium
+Task,Implementar lógica,HU-04. Desactivar usuario,HU-04,backend,Medium
+Task,Crear/Actualizar modelo,HU-04. Desactivar usuario,HU-04,database,Medium
+Task,Realizar pruebas,HU-04. Desactivar usuario,HU-04,testing,Medium
+Task,Actualizar documentación,HU-04. Desactivar usuario,HU-04,documentation,Medium
+Task,Diseñar interfaz,HU-05. Asignar roles,HU-05,frontend,Medium
+Task,Implementar lógica,HU-05. Asignar roles,HU-05,backend,Medium
+Task,Crear/Actualizar modelo,HU-05. Asignar roles,HU-05,database,Medium
+Task,Realizar pruebas,HU-05. Asignar roles,HU-05,testing,Medium
+Task,Actualizar documentación,HU-05. Asignar roles,HU-05,documentation,Medium
+Task,Diseñar interfaz,HU-06. Cerrar sesión,HU-06,frontend,Medium
+Task,Implementar lógica,HU-06. Cerrar sesión,HU-06,backend,Medium
+Task,Crear/Actualizar modelo,HU-06. Cerrar sesión,HU-06,database,Medium
+Task,Realizar pruebas,HU-06. Cerrar sesión,HU-06,testing,Medium
+Task,Actualizar documentación,HU-06. Cerrar sesión,HU-06,documentation,Medium
+Task,Diseñar interfaz,HU-07. Registrar producto,HU-07,frontend,Medium
+Task,Implementar lógica,HU-07. Registrar producto,HU-07,backend,Medium
+Task,Crear/Actualizar modelo,HU-07. Registrar producto,HU-07,database,Medium
+Task,Realizar pruebas,HU-07. Registrar producto,HU-07,testing,Medium
+Task,Actualizar documentación,HU-07. Registrar producto,HU-07,documentation,Medium
+Task,Diseñar interfaz,HU-08. Editar producto,HU-08,frontend,Medium
+Task,Implementar lógica,HU-08. Editar producto,HU-08,backend,Medium
+Task,Crear/Actualizar modelo,HU-08. Editar producto,HU-08,database,Medium
+Task,Realizar pruebas,HU-08. Editar producto,HU-08,testing,Medium
+Task,Actualizar documentación,HU-08. Editar producto,HU-08,documentation,Medium
+Task,Diseñar interfaz,HU-09. Desactivar producto,HU-09,frontend,Medium
+Task,Implementar lógica,HU-09. Desactivar producto,HU-09,backend,Medium
+Task,Crear/Actualizar modelo,HU-09. Desactivar producto,HU-09,database,Medium
+Task,Realizar pruebas,HU-09. Desactivar producto,HU-09,testing,Medium
+Task,Actualizar documentación,HU-09. Desactivar producto,HU-09,documentation,Medium
+Task,Diseñar interfaz,HU-10. Buscar producto,HU-10,frontend,Medium
+Task,Implementar lógica,HU-10. Buscar producto,HU-10,backend,Medium
+Task,Crear/Actualizar modelo,HU-10. Buscar producto,HU-10,database,Medium
+Task,Realizar pruebas,HU-10. Buscar producto,HU-10,testing,Medium
+Task,Actualizar documentación,HU-10. Buscar producto,HU-10,documentation,Medium
+Task,Diseñar interfaz,HU-11. Consultar producto,HU-11,frontend,Medium
+Task,Implementar lógica,HU-11. Consultar producto,HU-11,backend,Medium
+Task,Crear/Actualizar modelo,HU-11. Consultar producto,HU-11,database,Medium
+Task,Realizar pruebas,HU-11. Consultar producto,HU-11,testing,Medium
+Task,Actualizar documentación,HU-11. Consultar producto,HU-11,documentation,Medium
+Task,Diseñar interfaz,HU-12. Gestionar categorías,HU-12,frontend,Medium
+Task,Implementar lógica,HU-12. Gestionar categorías,HU-12,backend,Medium
+Task,Crear/Actualizar modelo,HU-12. Gestionar categorías,HU-12,database,Medium
+Task,Realizar pruebas,HU-12. Gestionar categorías,HU-12,testing,Medium
+Task,Actualizar documentación,HU-12. Gestionar categorías,HU-12,documentation,Medium
+Task,Diseñar interfaz,HU-13. Gestionar laboratorios,HU-13,frontend,Medium
+Task,Implementar lógica,HU-13. Gestionar laboratorios,HU-13,backend,Medium
+Task,Crear/Actualizar modelo,HU-13. Gestionar laboratorios,HU-13,database,Medium
+Task,Realizar pruebas,HU-13. Gestionar laboratorios,HU-13,testing,Medium
+Task,Actualizar documentación,HU-13. Gestionar laboratorios,HU-13,documentation,Medium
+Task,Diseñar interfaz,HU-14. Gestionar unidades de medida,HU-14,frontend,Medium
+Task,Implementar lógica,HU-14. Gestionar unidades de medida,HU-14,backend,Medium
+Task,Crear/Actualizar modelo,HU-14. Gestionar unidades de medida,HU-14,database,Medium
+Task,Realizar pruebas,HU-14. Gestionar unidades de medida,HU-14,testing,Medium
+Task,Actualizar documentación,HU-14. Gestionar unidades de medida,HU-14,documentation,Medium
+Task,Diseñar interfaz,HU-15. Registrar proveedor,HU-15,frontend,Medium
+Task,Implementar lógica,HU-15. Registrar proveedor,HU-15,backend,Medium
+Task,Crear/Actualizar modelo,HU-15. Registrar proveedor,HU-15,database,Medium
+Task,Realizar pruebas,HU-15. Registrar proveedor,HU-15,testing,Medium
+Task,Actualizar documentación,HU-15. Registrar proveedor,HU-15,documentation,Medium
+Task,Diseñar interfaz,HU-16. Editar proveedor,HU-16,frontend,Medium
+Task,Implementar lógica,HU-16. Editar proveedor,HU-16,backend,Medium
+Task,Crear/Actualizar modelo,HU-16. Editar proveedor,HU-16,database,Medium
+Task,Realizar pruebas,HU-16. Editar proveedor,HU-16,testing,Medium
+Task,Actualizar documentación,HU-16. Editar proveedor,HU-16,documentation,Medium
+Task,Diseñar interfaz,HU-17. Buscar proveedor,HU-17,frontend,Medium
+Task,Implementar lógica,HU-17. Buscar proveedor,HU-17,backend,Medium
+Task,Crear/Actualizar modelo,HU-17. Buscar proveedor,HU-17,database,Medium
+Task,Realizar pruebas,HU-17. Buscar proveedor,HU-17,testing,Medium
+Task,Actualizar documentación,HU-17. Buscar proveedor,HU-17,documentation,Medium
+Task,Diseñar interfaz,HU-18. Registrar cliente,HU-18,frontend,Medium
+Task,Implementar lógica,HU-18. Registrar cliente,HU-18,backend,Medium
+Task,Crear/Actualizar modelo,HU-18. Registrar cliente,HU-18,database,Medium
+Task,Realizar pruebas,HU-18. Registrar cliente,HU-18,testing,Medium
+Task,Actualizar documentación,HU-18. Registrar cliente,HU-18,documentation,Medium
+Task,Diseñar interfaz,HU-19. Editar cliente,HU-19,frontend,Medium
+Task,Implementar lógica,HU-19. Editar cliente,HU-19,backend,Medium
+Task,Crear/Actualizar modelo,HU-19. Editar cliente,HU-19,database,Medium
+Task,Realizar pruebas,HU-19. Editar cliente,HU-19,testing,Medium
+Task,Actualizar documentación,HU-19. Editar cliente,HU-19,documentation,Medium
+Task,Diseñar interfaz,HU-20. Buscar cliente,HU-20,frontend,Medium
+Task,Implementar lógica,HU-20. Buscar cliente,HU-20,backend,Medium
+Task,Crear/Actualizar modelo,HU-20. Buscar cliente,HU-20,database,Medium
+Task,Realizar pruebas,HU-20. Buscar cliente,HU-20,testing,Medium
+Task,Actualizar documentación,HU-20. Buscar cliente,HU-20,documentation,Medium
+Task,Diseñar formulario de compra,HU-22. Registrar compra,HU-22,frontend,Medium
+Task,Crear modelo Compra,HU-22. Registrar compra,HU-22,database,Medium
+Task,Implementar registro de compra,HU-22. Registrar compra,HU-22,backend,Medium
+Task,Validar proveedor,HU-22. Registrar compra,HU-22,backend,Medium
+Task,"Calcular subtotal, IVA y total",HU-22. Registrar compra,HU-22,backend,Medium
+Task,Registrar movimiento de inventario,HU-22. Registrar compra,HU-22,backend,Medium
+Task,Realizar pruebas,HU-22. Registrar compra,HU-22,testing,Medium
+Task,Actualizar documentación,HU-22. Registrar compra,HU-22,documentation,Medium
+Task,Diseñar interfaz,HU-23. Registrar detalle de compra,HU-23,frontend,Medium
+Task,Implementar lógica,HU-23. Registrar detalle de compra,HU-23,backend,Medium
+Task,Crear/Actualizar modelo,HU-23. Registrar detalle de compra,HU-23,database,Medium
+Task,Realizar pruebas,HU-23. Registrar detalle de compra,HU-23,testing,Medium
+Task,Actualizar documentación,HU-23. Registrar detalle de compra,HU-23,documentation,Medium
+Task,Diseñar interfaz,HU-24. Registrar lotes,HU-24,frontend,Medium
+Task,Implementar lógica,HU-24. Registrar lotes,HU-24,backend,Medium
+Task,Crear/Actualizar modelo,HU-24. Registrar lotes,HU-24,database,Medium
+Task,Realizar pruebas,HU-24. Registrar lotes,HU-24,testing,Medium
+Task,Actualizar documentación,HU-24. Registrar lotes,HU-24,documentation,Medium
+Task,Diseñar interfaz,HU-25. Asignar ubicación a lotes,HU-25,frontend,Medium
+Task,Implementar lógica,HU-25. Asignar ubicación a lotes,HU-25,backend,Medium
+Task,Crear/Actualizar modelo,HU-25. Asignar ubicación a lotes,HU-25,database,Medium
+Task,Realizar pruebas,HU-25. Asignar ubicación a lotes,HU-25,testing,Medium
+Task,Actualizar documentación,HU-25. Asignar ubicación a lotes,HU-25,documentation,Medium
+Task,Diseñar interfaz,HU-26. Actualizar stock por compra,HU-26,frontend,Medium
+Task,Implementar lógica,HU-26. Actualizar stock por compra,HU-26,backend,Medium
+Task,Crear/Actualizar modelo,HU-26. Actualizar stock por compra,HU-26,database,Medium
+Task,Realizar pruebas,HU-26. Actualizar stock por compra,HU-26,testing,Medium
+Task,Actualizar documentación,HU-26. Actualizar stock por compra,HU-26,documentation,Medium
