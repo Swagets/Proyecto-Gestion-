@@ -1,6 +1,25 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+
+
+def registro_usuario(request):
+    # LA IMPORTACIÓN VA AQUÍ ADENTRO:
+    from .forms import RegistroUsuarioForm
+
+    if request.method == 'POST':
+        form = RegistroUsuarioForm(request.POST)
+
+        if form.is_valid():
+            # Recuerda: si tu usuario usa contraseña, 
+            # aquí deberías usar set_password() antes del save()
+            form.save()
+            return redirect('registro_usuario') 
+
+    else:
+        form = RegistroUsuarioForm()
+
+    return render(request, 'usuarios/registro_usuario.html', {'form': form})
 
 @login_required
 def redireccion_por_rol(request):
