@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-l&(#os3os@tos#do499m^fs!6x_b#jb7no403q=g8p5@2x^okv'
+SECRET_KEY = 'django-insecure-%!t2oxdwl=_^z&_o@-!!e)8+nf9gt+=1y80i_q3_e$+@i*p5_m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'usuarios',
 ]
 
 MIDDLEWARE = [
@@ -115,3 +116,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+AUTH_USER_MODEL = 'usuarios.Usuario'
+# A dónde enviar al usuario después de loguearse exitosamente
+LOGIN_REDIRECT_URL = '/admin/' # Temporalmente los enviaremos al admin
+
+# A dónde enviar a alguien si intenta acceder a una página prohibida sin iniciar sesión
+LOGIN_URL = 'login'
