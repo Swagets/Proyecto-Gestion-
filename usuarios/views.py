@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
-
+from django.shortcuts import redirect, render, get_object_or_404
+from .forms import EditarUsuarioForm
+from .models import Usuario
 
 def registro_usuario(request):
     # LA IMPORTACIÓN VA AQUÍ ADENTRO:
@@ -21,6 +22,28 @@ def registro_usuario(request):
 
     return render(request, 'usuarios/registro_usuario.html', {'form': form})
 
+
+@login_required
+def editar_usuario(request, id):
+    # Capa de seguridad: Solo el ADMIN puede editar
+    if not (request.user.is_superuser or request.user.rol == 'ADMIN'):
+        return redirect('redireccion_rol')
+
+    # Buscamos al usuario por su ID
+    usuario = get_object_or_404(Usuario, id=id)
+
+    if request.method == 'POST':
+        # Pasamos los nuevos datos y la instancia a actualizar
+        form = EditarUsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard_admin') # Volvemos al dashboard tras guardar
+    else:
+        # Si es GET, cargamos el formulario con los datos actuales
+        form = EditarUsuarioForm(instance=usuario)
+
+    return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario_editado': usuario})
+
 @login_required
 def redireccion_por_rol(request):
     """
@@ -37,7 +60,15 @@ def redireccion_por_rol(request):
 
 @login_required
 def dashboard_admin(request):
-    return HttpResponse("Dashboard Administrador")
+    # Capa de seguridad
+    if not (request.user.is_superuser or request.user.rol == 'ADMIN'):
+        return redirect('redireccion_rol')
+    
+    # Obtenemos todos los usuarios de la base de datos
+    usuarios = Usuario.objects.all()
+    
+    # Enviamos los usuarios a la plantilla
+    return render(request, 'usuarios/dashboard_admin.html', {'usuarios': usuarios})
 
 @login_required
 def dashboard_bodega(request):

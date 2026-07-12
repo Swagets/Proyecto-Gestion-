@@ -1,5 +1,6 @@
 from django import forms
 from .models import Usuario
+from django.contrib.auth.password_validation import validate_password
 
 class RegistroUsuarioForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -22,8 +23,17 @@ class RegistroUsuarioForm(forms.ModelForm):
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
 
-        if password != confirm_password:
-            raise forms.ValidationError("Las contraseñas no coinciden.")
+        # 1. Validar que coincidan
+        if password and confirm_password and password != confirm_password:
+            self.add_error('confirm_password', "Las contraseñas no coinciden.")
+
+        # 2. Validar política de Django (longitud, complejidad)
+        if password:
+            try:
+                validate_password(password)
+            except forms.ValidationError as e:
+                self.add_error('password', e)
+
         return cleaned_data
 
     # 2. Guardar de forma segura
@@ -33,3 +43,21 @@ class RegistroUsuarioForm(forms.ModelForm):
         if commit:
             usuario.save()
         return usuario
+    
+    #-----------------------------------Edicion de Uusario-------------------------------------
+class EditarUsuarioForm(forms.ModelForm):
+    # Redefinimos el campo para que sea de solo lectura (deshabilitado)
+    username = forms.CharField(
+        disabled=True, 
+        widget=forms.TextInput(attrs={'class': 'form-control text-muted'})
+    )
+
+    class Meta:
+        model = Usuario
+        fields = ['first_name', 'last_name', 'username', 'email', 'rol']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'rol': forms.Select(attrs={'class': 'form-control'}),
+        }

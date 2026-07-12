@@ -9,6 +9,7 @@ urlpatterns = [
     # Esta es la ruta que usa tu lógica de redirección
     path('redireccion/', views.redireccion_por_rol, name='redireccion_rol'),
     path('registrar/', views.registro_usuario, name='registro_usuario'),
+    path('editar/<int:id>/', views.editar_usuario, name='editar_usuario'),
     
     # Tus otras rutas de dashboard
     path('dashboard/admin/', views.dashboard_admin, name='dashboard_admin'),
