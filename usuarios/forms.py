@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario
+from .models import Usuario, Producto
 from django.contrib.auth.password_validation import validate_password
 
 class RegistroUsuarioForm(forms.ModelForm):
@@ -61,3 +61,59 @@ class EditarUsuarioForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'rol': forms.Select(attrs={'class': 'form-control'}),
         }
+
+#------------Producto----------------
+class RegistroProductoForm(forms.ModelForm):
+
+    class Meta:
+        model = Producto
+        fields = [
+            'codigo',
+            'nombre',
+            'descripcion',
+            'categoria',
+            'laboratorio',
+            'unidad_medida',
+            'temperatura',
+            'precio_compra',
+            'precio_venta',
+            'iva',
+            'estado'
+        ]
+    def clean_codigo(self):
+        codigo = self.cleaned_data['codigo']
+
+        if Producto.objects.filter(codigo=codigo).exists():
+            raise forms.ValidationError("Ya existe un producto con este código.")
+
+        return codigo    
+    
+    def clean_precio_compra(self):
+        precio = self.cleaned_data['precio_compra']
+
+        if precio <= 0:
+            raise forms.ValidationError("El precio de compra debe ser mayor a 0.")
+
+        return precio
+    
+    def clean_precio_venta(self):
+        precio = self.cleaned_data['precio_venta']
+
+        if precio <= 0:
+            raise forms.ValidationError("El precio de venta debe ser mayor a 0.")
+
+        return precio
+    
+    def clean(self):
+        cleaned_data = super().clean()
+
+        compra = cleaned_data.get('precio_compra')
+        venta = cleaned_data.get('precio_venta')
+
+        if compra and venta:
+            if venta < compra:
+                raise forms.ValidationError(
+                    "El precio de venta no puede ser menor al precio de compra."
+                )
+
+        return cleaned_data

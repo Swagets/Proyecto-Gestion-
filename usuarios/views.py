@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from .forms import EditarUsuarioForm
+from .forms import EditarUsuarioForm, RegistroProductoForm
 from .models import Usuario
+
 
 def registro_usuario(request):
     # LA IMPORTACIÓN VA AQUÍ ADENTRO:
@@ -21,7 +22,21 @@ def registro_usuario(request):
         form = RegistroUsuarioForm()
 
     return render(request, 'usuarios/registro_usuario.html', {'form': form})
-
+#----------------Prodcuto-------------------
+@login_required
+def registrar_producto(request):
+    if request.method == 'POST':
+        form = RegistroProductoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # OJO: Si aún no tienes la vista 'lista_productos', 
+            # cámbiala temporalmente a 'dashboard_admin' para que no te dé error
+            return redirect('dashboard_admin') 
+    else:
+        form = RegistroProductoForm()
+        
+    # Cambié la ruta a la carpeta usuarios para mantener tu estructura
+    return render(request, 'usuarios/registro_producto.html', {'form': form})
 
 @login_required
 def editar_usuario(request, id):
