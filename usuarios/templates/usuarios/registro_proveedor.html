@@ -1,42 +1,106 @@
 {% extends 'usuarios/base.html' %}
 
-{% block content %}
-<div class="container mt-4">
-    <div class="card shadow" style="max-width: 600px; margin: auto;">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Registrar Nuevo Proveedor</h4>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                
-                <!-- Mostramos errores generales del formulario si los hay -->
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
+{% block title %}Registrar Proveedor - PowerMedical{% endblock %}
 
-                <!-- Renderizamos los campos -->
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ field.label }}</label>
-                        {{ field }}
-                        <!-- Aquí aparecerá el error rojo si el RUC es inválido -->
-                        {% if field.errors %}
-                            <div class="text-danger small mt-1">
-                                {{ field.errors|striptags }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                
-                <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="{% url 'dashboard_admin' %}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">Guardar Proveedor</button>
-                </div>
-            </form>
-        </div>
-    </div>
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-truck me-2"></i>Registrar Nuevo Proveedor</h2>
 </div>
+
+<div class="pm-form-section" style="max-width: 800px;">
+    <form method="post" novalidate class="pm-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="pm-alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            <!-- Columna izquierda -->
+            <div class="col-md-6">
+                <div class="section-title">Datos de la Empresa</div>
+
+                <div class="mb-3">
+                    <label for="id_ruc" class="form-label">{{ form.ruc.label }}</label>
+                    {{ form.ruc }}
+                    {% if form.ruc.errors %}
+                        <div class="text-danger small mt-1">{{ form.ruc.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_nombre_empresa" class="form-label">{{ form.nombre_empresa.label }}</label>
+                    {{ form.nombre_empresa }}
+                    {% if form.nombre_empresa.errors %}
+                        <div class="text-danger small mt-1">{{ form.nombre_empresa.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_contacto" class="form-label">{{ form.contacto.label }}</label>
+                    {{ form.contacto }}
+                    {% if form.contacto.errors %}
+                        <div class="text-danger small mt-1">{{ form.contacto.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="col-md-6">
+                <div class="section-title">Información de Contacto</div>
+
+                <div class="mb-3">
+                    <label for="id_telefono" class="form-label">{{ form.telefono.label }}</label>
+                    {{ form.telefono }}
+                    {% if form.telefono.errors %}
+                        <div class="text-danger small mt-1">{{ form.telefono.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_correo" class="form-label">{{ form.correo.label }}</label>
+                    {{ form.correo }}
+                    {% if form.correo.errors %}
+                        <div class="text-danger small mt-1">{{ form.correo.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_estado" class="form-label">{{ form.estado.label }}</label>
+                    {{ form.estado }}
+                    {% if form.estado.errors %}
+                        <div class="text-danger small mt-1">{{ form.estado.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Dirección (ancho completo) -->
+            <div class="col-12">
+                <div class="section-title">Dirección</div>
+                <div class="mb-3">
+                    <label for="id_direccion" class="form-label">{{ form.direccion.label }}</label>
+                    {{ form.direccion }}
+                    {% if form.direccion.errors %}
+                        <div class="text-danger small mt-1">{{ form.direccion.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{% url 'dashboard_admin' %}" class="pm-btn pm-btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="pm-btn pm-btn-primary">
+                <i class="bi bi-check-lg"></i> Guardar Proveedor
+            </button>
+        </div>
+    </form>
+</div>
+
 {% endblock %}

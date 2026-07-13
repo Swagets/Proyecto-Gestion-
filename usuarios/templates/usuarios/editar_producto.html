@@ -1,22 +1,136 @@
 {% extends 'usuarios/base.html' %}
 
+{% block title %}Editar Producto - PowerMedical{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow" style="max-width: 600px; margin: auto;">
-        <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0">Editar Producto: {{ producto.nombre }}</h4>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                
-                <div class="mt-4 d-flex justify-content-between">
-                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-warning">Guardar Cambios</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-pencil-square me-2"></i>Editar Producto: {{ producto.nombre }}</h2>
 </div>
+
+<div class="pm-form-section">
+    <form method="post" novalidate class="pm-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="pm-alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            <!-- Columna izquierda -->
+            <div class="col-md-6">
+                <div class="section-title">Información del Producto</div>
+
+                <div class="mb-3">
+                    <label for="id_codigo" class="form-label">{{ form.codigo.label }}</label>
+                    {{ form.codigo }}
+                    {% if form.codigo.errors %}
+                        <div class="text-danger small mt-1">{{ form.codigo.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_nombre" class="form-label">{{ form.nombre.label }}</label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}
+                        <div class="text-danger small mt-1">{{ form.nombre.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_descripcion" class="form-label">{{ form.descripcion.label }}</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                        <div class="text-danger small mt-1">{{ form.descripcion.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_categoria" class="form-label">{{ form.categoria.label }}</label>
+                    {{ form.categoria }}
+                    {% if form.categoria.errors %}
+                        <div class="text-danger small mt-1">{{ form.categoria.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_laboratorio" class="form-label">{{ form.laboratorio.label }}</label>
+                    {{ form.laboratorio }}
+                    {% if form.laboratorio.errors %}
+                        <div class="text-danger small mt-1">{{ form.laboratorio.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="col-md-6">
+                <div class="section-title">Precios y Detalles</div>
+
+                <div class="mb-3">
+                    <label for="id_unidad_medida" class="form-label">{{ form.unidad_medida.label }}</label>
+                    {{ form.unidad_medida }}
+                    {% if form.unidad_medida.errors %}
+                        <div class="text-danger small mt-1">{{ form.unidad_medida.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_temperatura" class="form-label">{{ form.temperatura.label }}</label>
+                    {{ form.temperatura }}
+                    {% if form.temperatura.errors %}
+                        <div class="text-danger small mt-1">{{ form.temperatura.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="id_precio_compra" class="form-label">{{ form.precio_compra.label }}</label>
+                        {{ form.precio_compra }}
+                        {% if form.precio_compra.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio_compra.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="id_precio_venta" class="form-label">{{ form.precio_venta.label }}</label>
+                        {{ form.precio_venta }}
+                        {% if form.precio_venta.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio_venta.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="id_iva" class="form-label">{{ form.iva.label }}</label>
+                        {{ form.iva }}
+                        {% if form.iva.errors %}
+                            <div class="text-danger small mt-1">{{ form.iva.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="id_estado" class="form-label">{{ form.estado.label }}</label>
+                        {{ form.estado }}
+                        {% if form.estado.errors %}
+                            <div class="text-danger small mt-1">{{ form.estado.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{% url 'lista_productos' %}" class="pm-btn pm-btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="pm-btn pm-btn-primary">
+                <i class="bi bi-check-lg"></i> Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
 {% endblock %}

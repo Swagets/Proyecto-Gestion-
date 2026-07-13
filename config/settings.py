@@ -118,7 +118,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'usuarios.Usuario'
 # A dónde enviar al usuario después de loguearse exitosamente
-LOGIN_REDIRECT_URL = '/admin/' # Temporalmente los enviaremos al admin
+LOGIN_REDIRECT_URL = '/usuarios/redireccion/'
 
 # A dónde enviar a alguien si intenta acceder a una página prohibida sin iniciar sesión
 LOGIN_URL = 'login'

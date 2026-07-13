@@ -1,37 +1,27 @@
 {% extends 'usuarios/base.html' %}
 
+{% block title %}Detalle de Compra - PowerMedical{% endblock %}
+
 {% block content %}
 
-<div class="container mt-4">
-
-    <div class="card shadow">
-
-        <div class="card-header bg-primary text-white">
-            <h3>Registrar Detalle de Compra</h3>
-        </div>
-
-        <div class="card-body">
-
-            <form method="POST">
-
-                {% csrf_token %}
-
-                {{ form.as_p }}
-
-                <button type="submit" class="btn btn-success">
-                    Guardar Detalle
-                </button>
-
-                <a href="#" class="btn btn-secondary">
-                    Cancelar
-                </a>
-
-            </form>
-
-        </div>
-
-    </div>
-
+<div class="pm-page-header">
+    <h2><i class="bi bi-cart-plus me-2"></i>Registrar Compra</h2>
 </div>
+
+<div class="pm-card">
+    <div class="pm-card-body pm-empty">
+        <i class="bi bi-arrow-repeat d-block"></i>
+        <p>Serás redirigido a la pantalla de registro de compras...</p>
+        <a href="{% url 'registrar_compra' %}" class="pm-btn pm-btn-primary mt-2">
+            <i class="bi bi-box-arrow-right"></i> Ir a Registrar Compra
+        </a>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        window.location.href = "{% url 'registrar_compra' %}";
+    }, 1000);
+</script>
 
 {% endblock %}

@@ -1,19 +1,155 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuarios - PowerMedical</title>
+    <title>{% block title %}PowerMedical{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Aquí irá tu CSS de Bootstrap más adelante -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'usuarios/css/style.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-    <main class="container mt-4">
-        <!-- El bloque donde se inyectará tu formulario -->
-        {% block content %}
-        {% endblock %}
-    </main>
+    <!-- Overlay para cerrar sidebar en móvil -->
+    <div class="pm-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
+    <!-- SIDEBAR -->
+    <aside class="pm-sidebar" id="sidebar">
+        <a class="pm-sidebar-brand" href="{% url 'redireccion_rol' %}">
+            <i class="bi bi-hospital"></i>
+            <span>PowerMedical</span>
+        </a>
+
+        <nav class="pm-sidebar-nav">
+            {% if user.is_superuser or user.rol == 'ADMIN' %}
+                <div class="nav-section">Principal</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}" href="{% url 'dashboard_admin' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="nav-section">Gestión</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registro_usuario' or request.resolver_match.url_name == 'editar_usuario' %}active{% endif %}" href="{% url 'registro_usuario' %}">
+                    <i class="bi bi-people"></i>
+                    <span>Usuarios</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registro_producto' or request.resolver_match.url_name == 'lista_productos' or request.resolver_match.url_name == 'editar_producto' %}active{% endif %}" href="{% url 'lista_productos' %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Productos</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_proveedor' %}active{% endif %}" href="{% url 'registrar_proveedor' %}">
+                    <i class="bi bi-truck"></i>
+                    <span>Proveedores</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_cliente' %}active{% endif %}" href="{% url 'registrar_cliente' %}">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Clientes</span>
+                </a>
+
+                <div class="nav-section">Operaciones</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_compra' %}active{% endif %}" href="{% url 'registrar_compra' %}">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Compras</span>
+                </a>
+
+            {% elif user.rol == 'BODEGA' %}
+                <div class="nav-section">Principal</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_bodega' %}active{% endif %}" href="{% url 'dashboard_bodega' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="nav-section">Inventario</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registro_producto' or request.resolver_match.url_name == 'lista_productos' or request.resolver_match.url_name == 'editar_producto' %}active{% endif %}" href="{% url 'lista_productos' %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Productos</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_proveedor' %}active{% endif %}" href="{% url 'registrar_proveedor' %}">
+                    <i class="bi bi-truck"></i>
+                    <span>Proveedores</span>
+                </a>
+
+                <div class="nav-section">Operaciones</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_compra' %}active{% endif %}" href="{% url 'registrar_compra' %}">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Compras</span>
+                </a>
+
+            {% elif user.rol == 'VENDEDOR' %}
+                <div class="nav-section">Principal</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_vendedor' %}active{% endif %}" href="{% url 'dashboard_vendedor' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="nav-section">Gestión</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_cliente' %}active{% endif %}" href="{% url 'registrar_cliente' %}">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Clientes</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'lista_productos' %}active{% endif %}" href="{% url 'lista_productos' %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Productos</span>
+                </a>
+            {% endif %}
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="pm-main">
+
+        <!-- NAVBAR -->
+        <header class="pm-navbar">
+            <button class="pm-navbar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <a class="pm-navbar-brand" href="{% url 'redireccion_rol' %}">
+                <i class="bi bi-hospital"></i>
+                <span>PowerMedical</span>
+            </a>
+
+            <div class="pm-navbar-spacer"></div>
+
+            <div class="pm-navbar-user">
+                <div class="user-avatar">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+                <span class="d-none d-md-inline">
+                    {{ user.first_name }} {{ user.last_name|default:user.username }}
+                </span>
+                <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm" title="Cerrar sesión">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="pm-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="pm-alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

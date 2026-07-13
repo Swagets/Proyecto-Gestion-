@@ -1,0 +1,142 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Dashboard Bodega - PowerMedical{% endblock %}
+
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-speedometer2 me-2"></i>Panel de Bodega</h2>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'lista_productos' %}" class="pm-stat-card">
+            <div class="pm-stat-icon pm-bg-success">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>{{ productos_count }}</h3>
+                <p>Productos Activos</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'registro_producto' %}" class="pm-stat-card">
+            <div class="pm-stat-icon pm-bg-primary">
+                <i class="bi bi-plus-box"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>&nbsp;</h3>
+                <p>Registrar Producto</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'registrar_proveedor' %}" class="pm-stat-card">
+            <div class="pm-stat-icon pm-bg-warning">
+                <i class="bi bi-truck"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>&nbsp;</h3>
+                <p>Proveedores</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'registrar_compra' %}" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#6f42c1">
+                <i class="bi bi-cart-plus"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>&nbsp;</h3>
+                <p>Nueva Compra</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{% url 'lista_productos' %}" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#198754"><i class="bi bi-list-ul"></i></div>
+            <div class="pm-stat-info">
+                <p style="font-weight:600;color:#212529;margin:0">Lista Productos</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{% url 'registro_producto' %}" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#0d6efd"><i class="bi bi-plus-circle"></i></div>
+            <div class="pm-stat-info">
+                <p style="font-weight:600;color:#212529;margin:0">Nuevo Producto</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{% url 'registrar_proveedor' %}" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#fd7e14"><i class="bi bi-truck"></i></div>
+            <div class="pm-stat-info">
+                <p style="font-weight:600;color:#212529;margin:0">Nuevo Proveedor</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{% url 'registrar_compra' %}" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#6f42c1"><i class="bi bi-cart-plus"></i></div>
+            <div class="pm-stat-info">
+                <p style="font-weight:600;color:#212529;margin:0">Nueva Compra</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Compras recientes -->
+<div class="pm-card">
+    <div class="pm-card-header">
+        <span><i class="bi bi-clock-history me-2"></i>Compras Recientes</span>
+        <a href="{% url 'registrar_compra' %}" class="pm-btn pm-btn-primary pm-btn-sm">
+            <i class="bi bi-plus-lg"></i> Nueva
+        </a>
+    </div>
+    <div class="pm-card-body p-0">
+        <div class="pm-table-responsive">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Factura</th>
+                        <th>Proveedor</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for compra in compras_recientes %}
+                    <tr>
+                        <td><strong>{{ compra.numero_factura }}</strong></td>
+                        <td>{{ compra.proveedor.nombre_empresa }}</td>
+                        <td>{{ compra.fecha }}</td>
+                        <td>
+                            {% if compra.estado == 'REGISTRADA' %}
+                                <span class="pm-badge pm-badge-active">Registrada</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-inactive">{{ compra.estado }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="pm-empty">
+                            <i class="bi bi-cart d-block"></i>
+                            <p>No hay compras registradas.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
