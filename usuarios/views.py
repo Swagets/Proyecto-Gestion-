@@ -245,7 +245,7 @@ def registrar_compra(request):
         form = CompraForm()
 
     productos = Producto.objects.filter(estado='ACTIVO').values('id', 'codigo', 'nombre', 'precio_venta')
-    productos_json = json.dumps(list(productos))
+    productos_json = json.dumps(list(productos), default=float)
 
     return render(request, 'usuarios/registro_compra.html', {
         'form': form,
