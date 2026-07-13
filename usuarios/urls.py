@@ -28,6 +28,9 @@ urlpatterns = [
     path('compras/registrar/', views.registrar_compra, name='registrar_compra'),
     path('compras/detalle/registrar/', views.registrar_detalle_compra, name='registro_detalle_compra'),
 
+    # Ventas
+    path('ventas/registrar/', views.registrar_venta, name='registrar_venta'),
+
     # Lotes
     path('compras/lotes/', views.lista_compras_lotes, name='lista_compras_lotes'),
     path('compras/<int:compra_id>/lotes/', views.lista_lotes_compra, name='lista_lotes_compra'),

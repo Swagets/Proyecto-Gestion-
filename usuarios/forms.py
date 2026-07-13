@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion, Venta, DetalleVenta
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 import re
@@ -278,6 +278,47 @@ class CompraForm(forms.ModelForm):
                 'class': 'form-control', 
                 'rows': 3, # Cambiado a 3 para dar un poco más de espacio
                 'placeholder': 'Detalles adicionales de la entrega...'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+#-----------------------------Venta----------------------
+class VentaForm(forms.ModelForm):
+    class Meta:
+        model = Venta
+        fields = [
+            'cliente',
+            'fecha',
+            'numero_factura',
+            'observacion',
+            'estado'
+        ]
+
+        labels = {
+            'cliente': 'Cliente',
+            'fecha': 'Fecha de Venta',
+            'numero_factura': 'Número de Factura',
+            'observacion': 'Observaciones',
+            'estado': 'Estado de la Venta'
+        }
+
+        widgets = {
+            'cliente': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'fecha': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'numero_factura': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 001-001-000012345'
+            }),
+            'observacion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Detalles adicionales de la venta...'
             }),
             'estado': forms.Select(attrs={
                 'class': 'form-select'

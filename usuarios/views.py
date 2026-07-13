@@ -6,15 +6,17 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum
 from django.db import transaction
+from django.utils import timezone
+from datetime import timedelta
 
 from .forms import (
     EditarUsuarioForm, RegistroProductoForm, EditarProductoForm,
     ProveedorForm, ClienteForm, CompraForm, RegistroDetalleCompraForm,
-    LoteForm, UbicacionForm,
+    LoteForm, UbicacionForm, VentaForm,
 )
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion, Venta, DetalleVenta
 
 
 # ============================================
@@ -262,6 +264,102 @@ def registrar_detalle_compra(request):
 
 
 # ============================================
+# VENTA
+# ============================================
+@roles_permitidos('ADMIN', 'VENDEDOR')
+def registrar_venta(request):
+    if request.method == 'POST':
+        form = VentaForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    venta = form.save()
+
+                    detalles_creados = 0
+                    i = 0
+                    while True:
+                        producto_id = request.POST.get(f'det_producto_{i}')
+                        cantidad = request.POST.get(f'det_cantidad_{i}')
+                        precio = request.POST.get(f'det_precio_{i}')
+
+                        if producto_id is None:
+                            break
+
+                        if producto_id and cantidad and precio:
+                            try:
+                                producto = Producto.objects.get(id=int(producto_id))
+                                cant = int(cantidad)
+                                prec = float(precio)
+
+                                if cant > 0 and prec > 0:
+                                    DetalleVenta.objects.create(
+                                        venta=venta,
+                                        producto=producto,
+                                        cantidad=cant,
+                                        precio_unitario=prec,
+                                    )
+                                    detalles_creados += 1
+                            except (Producto.DoesNotExist, ValueError):
+                                pass
+
+                        i += 1
+
+                    if detalles_creados == 0:
+                        raise forms.ValidationError('Debe agregar al menos un producto.')
+
+                    # FIFO: descontar stock de lotes por caducidad más próxima
+                    detalles = venta.detalles.select_related('producto')
+                    for detalle in detalles:
+                        producto = detalle.producto
+                        restante = detalle.cantidad
+
+                        lotes = Lote.objects.filter(
+                            detalle_compra__producto=producto,
+                            estado='ACTIVO',
+                            cantidad_recibida__gt=0,
+                        ).order_by('fecha_caducidad')
+
+                        for lote in lotes:
+                            if restante <= 0:
+                                break
+                            descuento = min(lote.cantidad_recibida, restante)
+                            lote.cantidad_recibida -= descuento
+                            lote.save(update_fields=['cantidad_recibida'])
+                            restante -= descuento
+
+                        if restante > 0:
+                            raise forms.ValidationError(
+                                f'Stock insuficiente para "{producto.nombre}". '
+                                f'Faltan {restante} unidad(es).'
+                            )
+
+                        producto.stock = Lote.objects.filter(
+                            detalle_compra__producto=producto,
+                            estado='ACTIVO',
+                        ).aggregate(total=Sum('cantidad_recibida'))['total'] or 0
+                        producto.save(update_fields=['stock'])
+
+                    messages.success(
+                        request,
+                        f'Venta registrada exitosamente con {detalles_creados} producto(s).'
+                    )
+                    return redirect('redireccion_rol')
+
+            except forms.ValidationError as e:
+                messages.error(request, str(e.message))
+    else:
+        form = VentaForm()
+
+    productos = Producto.objects.filter(estado='ACTIVO').values('id', 'codigo', 'nombre', 'precio_venta')
+    productos_json = json.dumps(list(productos), default=float)
+
+    return render(request, 'usuarios/registro_venta.html', {
+        'form': form,
+        'productos_json': productos_json,
+    })
+
+
+# ============================================
 # LOTES
 # ============================================
 @roles_permitidos('ADMIN', 'BODEGA')
@@ -352,6 +450,9 @@ def crear_ubicacion(request):
 # ============================================
 @roles_permitidos('ADMIN', 'BODEGA')
 def lista_inventario(request):
+    hoy = timezone.now().date()
+    limite_caducidad = hoy + timedelta(days=30)
+
     lotes = Lote.objects.select_related(
         'detalle_compra__producto',
         'ubicacion',
@@ -374,6 +475,26 @@ def lista_inventario(request):
     if estado:
         lotes = lotes.filter(estado=estado)
 
+    # Filtros de alerta (solo uno a la vez)
+    stock_bajo = request.GET.get('stock_bajo', '')
+    agotados = request.GET.get('agotados', '')
+    caducar = request.GET.get('caducar', '')
+
+    if stock_bajo == '1':
+        lotes = lotes.filter(
+            detalle_compra__producto__stock__gt=0,
+            detalle_compra__producto__stock__lte=F('detalle_compra__producto__stock_minimo'),
+        )
+    elif agotados == '1':
+        lotes = lotes.filter(detalle_compra__producto__stock=0)
+    elif caducar:
+        dias = int(caducar) if caducar.isdigit() else 30
+        limite = hoy + timedelta(days=dias)
+        lotes = lotes.filter(
+            fecha_caducidad__lte=limite,
+            fecha_caducidad__gte=hoy,
+        )
+
     # Ordenamiento
     ordenar = request.GET.get('ordenar', 'nombre')
     orden_map = {
@@ -386,6 +507,26 @@ def lista_inventario(request):
 
     ubicaciones = Ubicacion.objects.all().order_by('codigo')
 
+    # Estadísticas para tarjetas de resumen (productos distintos)
+    base_productos = Producto.objects.filter(estado='ACTIVO')
+
+    total_productos = base_productos.count()
+
+    disponibles = base_productos.filter(
+        stock__gt=F('stock_minimo')
+    ).count()
+
+    productos_stock_bajo = base_productos.filter(
+        stock__gt=0,
+        stock__lte=F('stock_minimo'),
+    ).count()
+
+    productos_caducar = base_productos.filter(
+        detallecompra__lotes__fecha_caducidad__lte=limite_caducidad,
+        detallecompra__lotes__fecha_caducidad__gte=hoy,
+        detallecompra__lotes__estado='ACTIVO',
+    ).distinct().count()
+
     return render(request, 'usuarios/inventario.html', {
         'lotes': lotes,
         'ubicaciones': ubicaciones,
@@ -393,6 +534,15 @@ def lista_inventario(request):
         'ubicacion_seleccionada': ubicacion_id,
         'estado_seleccionado': estado,
         'ordenar': ordenar,
+        'hoy': hoy,
+        'limite_caducidad': limite_caducidad,
+        'stock_bajo_activo': stock_bajo == '1',
+        'agotados_activo': agotados == '1',
+        'caducar_activo': caducar != '',
+        'total_productos': total_productos,
+        'disponibles': disponibles,
+        'productos_stock_bajo': productos_stock_bajo,
+        'productos_caducar': productos_caducar,
     })
 
 

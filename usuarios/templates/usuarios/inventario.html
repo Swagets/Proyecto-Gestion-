@@ -8,11 +8,59 @@
     <h2><i class="bi bi-clipboard-data me-2"></i>Inventario</h2>
 </div>
 
+<!-- Tarjetas de resumen -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'lista_inventario' %}" class="pm-stat-card">
+            <div class="pm-stat-icon pm-bg-primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>{{ total_productos }}</h3>
+                <p>Total Productos</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'lista_inventario' %}" class="pm-stat-card">
+            <div class="pm-stat-icon pm-bg-success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>{{ disponibles }}</h3>
+                <p>Disponibles</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'lista_inventario' %}?stock_bajo=1" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#ffc107">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>{{ productos_stock_bajo }}</h3>
+                <p>Stock Bajo</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a href="{% url 'lista_inventario' %}?caducar=30" class="pm-stat-card">
+            <div class="pm-stat-icon" style="background:#fd7e14">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="pm-stat-info">
+                <h3>{{ productos_caducar }}</h3>
+                <p>Próximos a Caducar</p>
+            </div>
+        </a>
+    </div>
+</div>
+
 <!-- Filtros -->
 <div class="pm-form-section">
     <form method="GET" action="{% url 'lista_inventario' %}" class="row g-3 align-items-end">
         <!-- Búsqueda por nombre -->
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label small text-muted">Buscar producto</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -21,10 +69,10 @@
         </div>
 
         <!-- Filtro por ubicación -->
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label class="form-label small text-muted">Ubicación</label>
             <select name="ubicacion" class="form-select">
-                <option value="">Todas las ubicaciones</option>
+                <option value="">Todas</option>
                 {% for ub in ubicaciones %}
                     <option value="{{ ub.id }}" {% if ubicacion_seleccionada == ub.id|stringformat:"d" %}selected{% endif %}>
                         {{ ub.codigo }}
@@ -43,6 +91,17 @@
             </select>
         </div>
 
+        <!-- Filtro de alerta -->
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Alerta</label>
+            <select name="alerta" class="form-select" onchange="handleAlertFilter(this)">
+                <option value="">Todas</option>
+                <option value="stock_bajo" {% if stock_bajo_activo %}selected{% endif %}>Stock Bajo</option>
+                <option value="agotados" {% if agotados_activo %}selected{% endif %}>Agotados</option>
+                <option value="caducar" {% if caducar_activo %}selected{% endif %}>Próximos a Caducar</option>
+            </select>
+        </div>
+
         <!-- Ordenar -->
         <div class="col-md-2">
             <label class="form-label small text-muted">Ordenar por</label>
@@ -58,7 +117,7 @@
             <button type="submit" class="pm-btn pm-btn-primary">
                 <i class="bi bi-funnel"></i>
             </button>
-            {% if query or ubicacion_seleccionada or estado_seleccionado %}
+            {% if query or ubicacion_seleccionada or estado_seleccionado or stock_bajo_activo or agotados_activo or caducar_activo %}
                 <a href="{% url 'lista_inventario' %}" class="pm-btn pm-btn-outline-secondary">
                     <i class="bi bi-x-lg"></i>
                 </a>
@@ -77,6 +136,7 @@
                         <th>Producto</th>
                         <th>Categoría</th>
                         <th class="text-center">Stock</th>
+                        <th class="text-center">Mínimo</th>
                         <th>Lote</th>
                         <th>Caducidad</th>
                         <th>Ubicación</th>
@@ -86,23 +146,30 @@
                 </thead>
                 <tbody>
                     {% for lote in lotes %}
+                    {% with producto=lote.detalle_compra.producto %}
                     <tr>
                         <td>
-                            <strong>{{ lote.detalle_compra.producto.nombre }}</strong>
-                            <div class="text-muted small">{{ lote.detalle_compra.producto.codigo }}</div>
+                            <strong>{{ producto.nombre }}</strong>
+                            <div class="text-muted small">{{ producto.codigo }}</div>
                         </td>
-                        <td>{{ lote.detalle_compra.producto.categoria }}</td>
+                        <td>{{ producto.categoria }}</td>
                         <td class="text-center">
-                            {% if lote.detalle_compra.producto.stock > 0 %}
-                                <span class="pm-badge pm-badge-success">{{ lote.detalle_compra.producto.stock }}</span>
+                            {% if producto.stock > 0 %}
+                                <span class="pm-badge pm-badge-success">{{ producto.stock }}</span>
                             {% else %}
                                 <span class="pm-badge pm-badge-inactive">0</span>
                             {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="text-muted">{{ producto.stock_minimo }}</span>
                         </td>
                         <td><strong>{{ lote.numero_lote }}</strong></td>
                         <td>
                             {% if lote.fecha_caducidad %}
                                 {{ lote.fecha_caducidad|date:"d/m/Y" }}
+                                {% if lote.fecha_caducidad <= limite_caducidad and lote.fecha_caducidad >= hoy %}
+                                    <br><span class="pm-badge pm-badge-warning">Próximo a Caducar</span>
+                                {% endif %}
                             {% else %}
                                 <span class="text-muted">-</span>
                             {% endif %}
@@ -115,10 +182,12 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if lote.detalle_compra.producto.stock > 0 %}
-                                <span class="pm-badge pm-badge-success">Disponible</span>
+                            {% if producto.stock == 0 %}
+                                <span class="pm-badge pm-badge-inactive">Agotado</span>
+                            {% elif producto.stock <= producto.stock_minimo %}
+                                <span class="pm-badge pm-badge-warning">Stock Bajo</span>
                             {% else %}
-                                <span class="pm-badge pm-badge-inactive">Sin stock</span>
+                                <span class="pm-badge pm-badge-success">Disponible</span>
                             {% endif %}
                         </td>
                         <td>
@@ -129,9 +198,10 @@
                             {% endif %}
                         </td>
                     </tr>
+                    {% endwith %}
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="pm-empty">
+                        <td colspan="9" class="pm-empty">
                             <i class="bi bi-clipboard d-block"></i>
                             <p>No se encontraron registros de inventario.</p>
                         </td>
@@ -143,4 +213,23 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function handleAlertFilter(select) {
+        var form = select.closest('form');
+        // Remove existing alert params
+        var url = new URL(window.location);
+        url.searchParams.delete('stock_bajo');
+        url.searchParams.delete('agotados');
+        url.searchParams.delete('caducar');
+        // Add selected alert param
+        var val = select.value;
+        if (val === 'stock_bajo') url.searchParams.set('stock_bajo', '1');
+        else if (val === 'agotados') url.searchParams.set('agotados', '1');
+        else if (val === 'caducar') url.searchParams.set('caducar', '30');
+        window.location.href = url.toString();
+    }
+</script>
 {% endblock %}
