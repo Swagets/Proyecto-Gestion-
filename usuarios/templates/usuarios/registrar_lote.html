@@ -1,0 +1,157 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Registrar Lote - PowerMedical{% endblock %}
+
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-upc-scan me-2"></i>Registrar Lote</h2>
+</div>
+
+<!-- Información del detalle de compra -->
+<div class="pm-form-section">
+    <div class="section-title">Detalle de Compra</div>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <small class="text-muted d-block">Factura</small>
+            <strong>{{ detalle.compra.numero_factura }}</strong>
+        </div>
+        <div class="col-md-3">
+            <small class="text-muted d-block">Producto</small>
+            <strong>{{ detalle.producto.nombre }}</strong>
+        </div>
+        <div class="col-md-2">
+            <small class="text-muted d-block">Cantidad Comprada</small>
+            <strong>{{ detalle.cantidad }}</strong>
+        </div>
+        <div class="col-md-2">
+            <small class="text-muted d-block">Ya Registrada</small>
+            <strong>{{ cantidad_ya_registrada }}</strong>
+        </div>
+        <div class="col-md-2">
+            <small class="text-muted d-block">Disponible</small>
+            <strong class="{% if cantidad_disponible > 0 %}text-success{% else %}text-danger{% endif %}">
+                {{ cantidad_disponible }}
+            </strong>
+        </div>
+    </div>
+</div>
+
+<!-- Lotes existentes -->
+{% if detalle.lotes.all %}
+<div class="pm-form-section">
+    <div class="section-title">Lotes Registrados</div>
+    <div class="pm-table-responsive">
+        <table class="pm-table">
+            <thead>
+                <tr>
+                    <th>Número de Lote</th>
+                    <th>Fabricación</th>
+                    <th>Caducidad</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lote in detalle.lotes.all %}
+                <tr>
+                    <td><strong>{{ lote.numero_lote }}</strong></td>
+                    <td>{{ lote.fecha_fabricacion|default:"-" }}</td>
+                    <td>{{ lote.fecha_caducidad }}</td>
+                    <td>{{ lote.cantidad_recibida }}</td>
+                    <td>
+                        {% if lote.estado == 'ACTIVO' %}
+                            <span class="pm-badge pm-badge-active">Activo</span>
+                        {% else %}
+                            <span class="pm-badge pm-badge-inactive">Inactivo</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Formulario de nuevo lote -->
+{% if cantidad_disponible > 0 %}
+<div class="pm-form-section" style="max-width: 700px;">
+    <div class="section-title">Nuevo Lote</div>
+    <form method="post" novalidate class="pm-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="pm-alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-md-6 mb-3">
+                <label for="id_numero_lote" class="form-label">{{ form.numero_lote.label }}</label>
+                {{ form.numero_lote }}
+                {% if form.numero_lote.errors %}
+                    <div class="text-danger small mt-1">{{ form.numero_lote.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_cantidad_recibida" class="form-label">{{ form.cantidad_recibida.label }}</label>
+                {{ form.cantidad_recibida }}
+                <div class="form-text">Máximo: {{ cantidad_disponible }}</div>
+                {% if form.cantidad_recibida.errors %}
+                    <div class="text-danger small mt-1">{{ form.cantidad_recibida.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_fecha_fabricacion" class="form-label">{{ form.fecha_fabricacion.label }}</label>
+                {{ form.fecha_fabricacion }}
+                {% if form.fecha_fabricacion.errors %}
+                    <div class="text-danger small mt-1">{{ form.fecha_fabricacion.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_fecha_caducidad" class="form-label">{{ form.fecha_caducidad.label }}</label>
+                {{ form.fecha_caducidad }}
+                {% if form.fecha_caducidad.errors %}
+                    <div class="text-danger small mt-1">{{ form.fecha_caducidad.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_estado" class="form-label">{{ form.estado.label }}</label>
+                {{ form.estado }}
+                {% if form.estado.errors %}
+                    <div class="text-danger small mt-1">{{ form.estado.errors|striptags }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{% url 'lista_lotes_compra' detalle.compra.id %}" class="pm-btn pm-btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="pm-btn pm-btn-primary">
+                <i class="bi bi-check-lg"></i> Guardar Lote
+            </button>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="pm-form-section">
+    <div class="pm-empty">
+        <i class="bi bi-check-circle d-block"></i>
+        <p>Toda la cantidad de este producto ha sido registrada en lotes.</p>
+        <a href="{% url 'lista_lotes_compra' detalle.compra.id %}" class="pm-btn pm-btn-primary mt-2">
+            <i class="bi bi-arrow-left"></i> Volver a la compra
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 import re
@@ -294,3 +294,60 @@ class RegistroDetalleCompraForm(forms.ModelForm):
             'cantidad',
             'precio_unitario'
         ]
+
+#-----------------------------Lote----------------------
+class LoteForm(forms.ModelForm):
+    class Meta:
+        model = Lote
+        fields = [
+            'numero_lote',
+            'fecha_fabricacion',
+            'fecha_caducidad',
+            'cantidad_recibida',
+            'estado',
+        ]
+        labels = {
+            'numero_lote': 'Número de Lote',
+            'fecha_fabricacion': 'Fecha de Fabricación',
+            'fecha_caducidad': 'Fecha de Caducidad',
+            'cantidad_recibida': 'Cantidad Recibida',
+            'estado': 'Estado',
+        }
+        widgets = {
+            'numero_lote': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: LOTE-001',
+            }),
+            'fecha_fabricacion': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'fecha_caducidad': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'cantidad_recibida': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+        }
+
+    def clean_fecha_caducidad(self):
+        fecha_caducidad = self.cleaned_data.get('fecha_caducidad')
+        fecha_fabricacion = self.cleaned_data.get('fecha_fabricacion')
+
+        if fecha_fabricacion and fecha_caducidad:
+            if fecha_caducidad <= fecha_fabricacion:
+                raise forms.ValidationError(
+                    "La fecha de caducidad debe ser posterior a la fecha de fabricación."
+                )
+        return fecha_caducidad
+
+    def clean_cantidad_recibida(self):
+        cantidad = self.cleaned_data.get('cantidad_recibida')
+        if cantidad is not None and cantidad <= 0:
+            raise forms.ValidationError("La cantidad debe ser mayor a cero.")
+        return cantidad

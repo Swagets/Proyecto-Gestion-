@@ -186,3 +186,49 @@ class DetalleCompra(models.Model):
 
     def __str__(self):
         return f"{self.compra.numero_factura} - {self.producto.nombre}"
+
+class Lote(models.Model):
+
+    ESTADOS = [
+        ('ACTIVO', 'Activo'),
+        ('INACTIVO', 'Inactivo'),
+    ]
+
+    detalle_compra = models.ForeignKey(
+        DetalleCompra,
+        on_delete=models.CASCADE,
+        related_name='lotes'
+    )
+
+    numero_lote = models.CharField(max_length=50)
+
+    fecha_fabricacion = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha de Fabricación"
+    )
+
+    fecha_caducidad = models.DateField(
+        verbose_name="Fecha de Caducidad"
+    )
+
+    cantidad_recibida = models.PositiveIntegerField(
+        verbose_name="Cantidad Recibida"
+    )
+
+    estado = models.CharField(
+        max_length=10,
+        choices=ESTADOS,
+        default='ACTIVO'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['detalle_compra', 'numero_lote'],
+                name='unique_lote_por_detalle'
+            )
+        ]
+
+    def __str__(self):
+        return f"Lote {self.numero_lote} - {self.detalle_compra.producto.nombre}"

@@ -2,6 +2,7 @@ import json
 from functools import wraps
 
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -10,8 +11,9 @@ from django.db.models import Q
 from .forms import (
     EditarUsuarioForm, RegistroProductoForm, EditarProductoForm,
     ProveedorForm, ClienteForm, CompraForm, RegistroDetalleCompraForm,
+    LoteForm,
 )
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote
 
 
 # ============================================
@@ -256,3 +258,74 @@ def registrar_compra(request):
 @roles_permitidos('ADMIN', 'BODEGA')
 def registrar_detalle_compra(request):
     return redirect('registrar_compra')
+
+
+# ============================================
+# LOTES
+# ============================================
+@roles_permitidos('ADMIN', 'BODEGA')
+def lista_compras_lotes(request):
+    compras = Compra.objects.select_related('proveedor').order_by('-fecha')
+    return render(request, 'usuarios/lista_compras_lotes.html', {
+        'compras': compras,
+    })
+
+
+@roles_permitidos('ADMIN', 'BODEGA')
+def lista_lotes_compra(request, compra_id):
+    compra = get_object_or_404(Compra, id=compra_id)
+    detalles = compra.detalles.select_related('producto').prefetch_related('lotes')
+
+    return render(request, 'usuarios/lista_lotes_compra.html', {
+        'compra': compra,
+        'detalles': detalles,
+    })
+
+
+@roles_permitidos('ADMIN', 'BODEGA')
+def registrar_lote(request, detalle_id):
+    detalle = get_object_or_404(DetalleCompra, id=detalle_id)
+
+    # Calcular cantidad total ya registrada en lotes
+    cantidad_ya_registrada = sum(
+        l.cantidad_recibida for l in detalle.lotes.all()
+    )
+    cantidad_disponible = detalle.cantidad - cantidad_ya_registrada
+
+    if request.method == 'POST':
+        form = LoteForm(request.POST)
+        if form.is_valid():
+            lote = form.save(commit=False)
+            lote.detalle_compra = detalle
+
+            # Validar que la cantidad no exceda la disponible
+            if lote.cantidad_recibida > cantidad_disponible:
+                form.add_error(
+                    'cantidad_recibida',
+                    f'La cantidad no puede exceder la disponible ({cantidad_disponible}).'
+                )
+            else:
+                lote.save()
+                messages.success(
+                    request,
+                    f'Lote {lote.numero_lote} registrado exitosamente.'
+                )
+                return redirect('lista_lotes_compra', compra_id=detalle.compra.id)
+    else:
+        form = LoteForm()
+
+    return render(request, 'usuarios/registrar_lote.html', {
+        'form': form,
+        'detalle': detalle,
+        'cantidad_ya_registrada': cantidad_ya_registrada,
+        'cantidad_disponible': cantidad_disponible,
+    })
+
+
+# ============================================
+# CERRAR SESIÓN
+# ============================================
+@login_required
+def cerrar_sesion(request):
+    logout(request)
+    return redirect('login')

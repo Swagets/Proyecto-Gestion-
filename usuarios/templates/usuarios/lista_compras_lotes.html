@@ -1,0 +1,61 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Gestionar Lotes - PowerMedical{% endblock %}
+
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-upc-scan me-2"></i>Gestionar Lotes</h2>
+    <p class="text-muted mb-0">Seleccione una compra para administrar los lotes de sus productos</p>
+</div>
+
+<div class="pm-form-section">
+    <div class="section-title">Compras Registradas</div>
+
+    {% if compras %}
+    <div class="pm-table-responsive">
+        <table class="pm-table">
+            <thead>
+                <tr>
+                    <th>Factura</th>
+                    <th>Proveedor</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th class="text-center">Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras %}
+                <tr>
+                    <td><strong>{{ compra.numero_factura }}</strong></td>
+                    <td>{{ compra.proveedor.nombre_empresa }}</td>
+                    <td>{{ compra.fecha|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if compra.estado == 'REGISTRADA' %}
+                            <span class="pm-badge pm-badge-success">Registrada</span>
+                        {% else %}
+                            <span class="pm-badge pm-badge-inactive">{{ compra.get_estado_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'lista_lotes_compra' compra.id %}" class="pm-btn pm-btn-sm pm-btn-primary">
+                            <i class="bi bi-eye"></i> Ver Detalles
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="pm-empty">
+        <i class="bi bi-inbox d-block"></i>
+        <p>No hay compras registradas.</p>
+        <a href="{% url 'registrar_compra' %}" class="pm-btn pm-btn-primary mt-2">
+            <i class="bi bi-cart-plus"></i> Registrar Compra
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

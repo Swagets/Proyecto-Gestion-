@@ -1,0 +1,103 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Lotes - Compra {{ compra.numero_factura }} - PowerMedical{% endblock %}
+
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-upc-scan me-2"></i>Lotes - Factura {{ compra.numero_factura }}</h2>
+    <div class="pm-page-actions">
+        <a href="{% url 'lista_compras_lotes' %}" class="pm-btn pm-btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Compras
+        </a>
+    </div>
+</div>
+
+<!-- Info de la compra -->
+<div class="pm-form-section">
+    <div class="section-title">Informacion de la Compra</div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <small class="text-muted d-block">Proveedor</small>
+            <strong>{{ compra.proveedor.nombre_empresa }}</strong>
+        </div>
+        <div class="col-md-3">
+            <small class="text-muted d-block">Fecha</small>
+            <strong>{{ compra.fecha|date:"d/m/Y" }}</strong>
+        </div>
+        <div class="col-md-3">
+            <small class="text-muted d-block">Estado</small>
+            {% if compra.estado == 'REGISTRADA' %}
+                <span class="pm-badge pm-badge-success">Registrada</span>
+            {% else %}
+                <span class="pm-badge pm-badge-inactive">{{ compra.get_estado_display }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Detalles con lotes -->
+{% for detalle in detalles %}
+<div class="pm-form-section">
+    <div class="section-title d-flex justify-content-between align-items-center">
+        <span>
+            <i class="bi bi-box-seam me-1"></i>
+            {{ detalle.producto.nombre }}
+            <span class="text-muted ms-2">(Cant: {{ detalle.cantidad }} | Precio: ${{ detalle.precio_unitario }})</span>
+        </span>
+        <a href="{% url 'registrar_lote' detalle.id %}" class="pm-btn pm-btn-sm pm-btn-success">
+            <i class="bi bi-plus-lg"></i> Registrar Lote
+        </a>
+    </div>
+
+    {% with lotes=detalle.lotes.all %}
+        {% if lotes %}
+        <div class="pm-table-responsive">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Numero de Lote</th>
+                        <th>Fabricacion</th>
+                        <th>Caducidad</th>
+                        <th>Cantidad</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lote in lotes %}
+                    <tr>
+                        <td><strong>{{ lote.numero_lote }}</strong></td>
+                        <td>{{ lote.fecha_fabricacion|default:"-" }}</td>
+                        <td>{{ lote.fecha_caducidad }}</td>
+                        <td>{{ lote.cantidad_recibida }}</td>
+                        <td>
+                            {% if lote.estado == 'ACTIVO' %}
+                                <span class="pm-badge pm-badge-success">Activo</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-inactive">{{ lote.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="pm-empty">
+            <i class="bi bi-inbox d-block"></i>
+            <p>No se han registrado lotes para este producto.</p>
+            <a href="{% url 'registrar_lote' detalle.id %}" class="pm-btn pm-btn-primary mt-2">
+                <i class="bi bi-plus-lg"></i> Registrar Primer Lote
+            </a>
+        </div>
+        {% endif %}
+    {% endwith %}
+</div>
+{% empty %}
+<div class="pm-empty">
+    <i class="bi bi-inbox d-block"></i>
+    <p>Esta compra no tiene detalles registrados.</p>
+</div>
+{% endfor %}
+
+{% endblock %}
