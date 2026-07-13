@@ -60,6 +60,7 @@
                         <th>Fabricacion</th>
                         <th>Caducidad</th>
                         <th>Cantidad</th>
+                        <th>Ubicación</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
@@ -70,6 +71,13 @@
                         <td>{{ lote.fecha_fabricacion|default:"-" }}</td>
                         <td>{{ lote.fecha_caducidad }}</td>
                         <td>{{ lote.cantidad_recibida }}</td>
+                        <td>
+                            {% if lote.ubicacion %}
+                                <span class="text-muted">{{ lote.ubicacion.codigo }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if lote.estado == 'ACTIVO' %}
                                 <span class="pm-badge pm-badge-success">Activo</span>

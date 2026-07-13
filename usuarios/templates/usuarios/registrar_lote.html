@@ -49,6 +49,7 @@
                     <th>Fabricación</th>
                     <th>Caducidad</th>
                     <th>Cantidad</th>
+                    <th>Ubicación</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -59,6 +60,13 @@
                     <td>{{ lote.fecha_fabricacion|default:"-" }}</td>
                     <td>{{ lote.fecha_caducidad }}</td>
                     <td>{{ lote.cantidad_recibida }}</td>
+                    <td>
+                        {% if lote.ubicacion %}
+                            <span class="text-muted">{{ lote.ubicacion.codigo }}</span>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
                     <td>
                         {% if lote.estado == 'ACTIVO' %}
                             <span class="pm-badge pm-badge-active">Activo</span>
@@ -128,6 +136,21 @@
                 {{ form.estado }}
                 {% if form.estado.errors %}
                     <div class="text-danger small mt-1">{{ form.estado.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-12 mb-3">
+                <label for="id_ubicacion" class="form-label">{{ form.ubicacion.label }}</label>
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        {{ form.ubicacion }}
+                    </div>
+                    <a href="{% url 'crear_ubicacion' %}?detalle_id={{ detalle.id }}" class="pm-btn pm-btn-outline-primary pm-btn-sm">
+                        <i class="bi bi-plus-lg"></i> Nueva
+                    </a>
+                </div>
+                {% if form.ubicacion.errors %}
+                    <div class="text-danger small mt-1">{{ form.ubicacion.errors|striptags }}</div>
                 {% endif %}
             </div>
         </div>

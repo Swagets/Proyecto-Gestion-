@@ -36,6 +36,7 @@
                         <th>Código</th>
                         <th>Nombre</th>
                         <th>Categoría</th>
+                        <th>Stock</th>
                         <th>Precio Venta</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -47,6 +48,13 @@
                         <td><strong>{{ producto.codigo }}</strong></td>
                         <td>{{ producto.nombre }}</td>
                         <td>{{ producto.categoria }}</td>
+                        <td>
+                            {% if producto.stock > 0 %}
+                                <span class="pm-badge pm-badge-success">{{ producto.stock }}</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-inactive">0</span>
+                            {% endif %}
+                        </td>
                         <td>${{ producto.precio_venta }}</td>
                         <td>
                             {% if producto.estado == 'ACTIVO' %}
@@ -67,7 +75,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="pm-empty">
+                        <td colspan="7" class="pm-empty">
                             <i class="bi bi-box-seam d-block"></i>
                             <p>No existen productos registrados o que coincidan con la búsqueda.</p>
                         </td>

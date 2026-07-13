@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 import re
@@ -304,6 +304,7 @@ class LoteForm(forms.ModelForm):
             'fecha_fabricacion',
             'fecha_caducidad',
             'cantidad_recibida',
+            'ubicacion',
             'estado',
         ]
         labels = {
@@ -311,6 +312,7 @@ class LoteForm(forms.ModelForm):
             'fecha_fabricacion': 'Fecha de Fabricación',
             'fecha_caducidad': 'Fecha de Caducidad',
             'cantidad_recibida': 'Cantidad Recibida',
+            'ubicacion': 'Ubicación',
             'estado': 'Estado',
         }
         widgets = {
@@ -329,6 +331,9 @@ class LoteForm(forms.ModelForm):
             'cantidad_recibida': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '1',
+            }),
+            'ubicacion': forms.Select(attrs={
+                'class': 'form-select',
             }),
             'estado': forms.Select(attrs={
                 'class': 'form-select',
@@ -351,3 +356,45 @@ class LoteForm(forms.ModelForm):
         if cantidad is not None and cantidad <= 0:
             raise forms.ValidationError("La cantidad debe ser mayor a cero.")
         return cantidad
+
+    def clean_ubicacion(self):
+        ubicacion = self.cleaned_data.get('ubicacion')
+        if not ubicacion:
+            raise forms.ValidationError("Debe seleccionar una ubicación.")
+        return ubicacion
+
+
+#-----------------------------Ubicacion----------------------
+class UbicacionForm(forms.ModelForm):
+    class Meta:
+        model = Ubicacion
+        fields = ['planta', 'pasillo', 'estanteria', 'nivel', 'codigo']
+        labels = {
+            'planta': 'Planta',
+            'pasillo': 'Pasillo',
+            'estanteria': 'Estantería',
+            'nivel': 'Nivel',
+            'codigo': 'Código',
+        }
+        widgets = {
+            'planta': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Planta 1',
+            }),
+            'pasillo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Pasillo A',
+            }),
+            'estanteria': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Estantería 3',
+            }),
+            'nivel': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Nivel 2',
+            }),
+            'codigo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: PL1-PA-E3-N2',
+            }),
+        }

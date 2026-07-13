@@ -32,6 +32,10 @@ urlpatterns = [
     path('compras/lotes/', views.lista_compras_lotes, name='lista_compras_lotes'),
     path('compras/<int:compra_id>/lotes/', views.lista_lotes_compra, name='lista_lotes_compra'),
     path('compras/detalle/<int:detalle_id>/lotes/registrar/', views.registrar_lote, name='registrar_lote'),
+    path('compras/ubicacion/crear/', views.crear_ubicacion, name='crear_ubicacion'),
+
+    # Inventario
+    path('inventario/', views.lista_inventario, name='lista_inventario'),
 
     # Dashboards
     path('dashboard/admin/', views.dashboard_admin, name='dashboard_admin'),

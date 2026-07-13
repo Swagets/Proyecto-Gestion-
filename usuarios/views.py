@@ -6,14 +6,15 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, F
+from django.db import transaction
 
 from .forms import (
     EditarUsuarioForm, RegistroProductoForm, EditarProductoForm,
     ProveedorForm, ClienteForm, CompraForm, RegistroDetalleCompraForm,
-    LoteForm,
+    LoteForm, UbicacionForm,
 )
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion
 
 
 # ============================================
@@ -295,22 +296,29 @@ def registrar_lote(request, detalle_id):
     if request.method == 'POST':
         form = LoteForm(request.POST)
         if form.is_valid():
-            lote = form.save(commit=False)
-            lote.detalle_compra = detalle
+            with transaction.atomic():
+                lote = form.save(commit=False)
+                lote.detalle_compra = detalle
 
-            # Validar que la cantidad no exceda la disponible
-            if lote.cantidad_recibida > cantidad_disponible:
-                form.add_error(
-                    'cantidad_recibida',
-                    f'La cantidad no puede exceder la disponible ({cantidad_disponible}).'
-                )
-            else:
-                lote.save()
-                messages.success(
-                    request,
-                    f'Lote {lote.numero_lote} registrado exitosamente.'
-                )
-                return redirect('lista_lotes_compra', compra_id=detalle.compra.id)
+                # Validar que la cantidad no exceda la disponible
+                if lote.cantidad_recibida > cantidad_disponible:
+                    form.add_error(
+                        'cantidad_recibida',
+                        f'La cantidad no puede exceder la disponible ({cantidad_disponible}).'
+                    )
+                else:
+                    lote.save()
+
+                    # Actualizar stock del producto
+                    producto = detalle.producto
+                    producto.stock += lote.cantidad_recibida
+                    producto.save(update_fields=['stock'])
+
+                    messages.success(
+                        request,
+                        f'Lote {lote.numero_lote} registrado exitosamente. Stock actualizado.'
+                    )
+                    return redirect('lista_lotes_compra', compra_id=detalle.compra.id)
     else:
         form = LoteForm()
 
@@ -319,6 +327,72 @@ def registrar_lote(request, detalle_id):
         'detalle': detalle,
         'cantidad_ya_registrada': cantidad_ya_registrada,
         'cantidad_disponible': cantidad_disponible,
+    })
+
+
+@roles_permitidos('ADMIN', 'BODEGA')
+def crear_ubicacion(request):
+    if request.method == 'POST':
+        form = UbicacionForm(request.POST)
+        if form.is_valid():
+            ubicacion = form.save()
+            messages.success(
+                request,
+                f'Ubicación {ubicacion.codigo} creada exitosamente.'
+            )
+            return redirect('registrar_lote', detalle_id=int(request.GET.get('detalle_id')))
+    else:
+        form = UbicacionForm()
+
+    return render(request, 'usuarios/registro_ubicacion.html', {'form': form})
+
+
+# ============================================
+# INVENTARIO
+# ============================================
+@roles_permitidos('ADMIN', 'BODEGA')
+def lista_inventario(request):
+    lotes = Lote.objects.select_related(
+        'detalle_compra__producto',
+        'ubicacion',
+    ).filter(detalle_compra__producto__estado='ACTIVO')
+
+    # Búsqueda por nombre de producto
+    query = request.GET.get('q', '')
+    if query:
+        lotes = lotes.filter(
+            detalle_compra__producto__nombre__icontains=query
+        )
+
+    # Filtro por ubicación
+    ubicacion_id = request.GET.get('ubicacion', '')
+    if ubicacion_id:
+        lotes = lotes.filter(ubicacion_id=ubicacion_id)
+
+    # Filtro por estado del lote
+    estado = request.GET.get('estado', '')
+    if estado:
+        lotes = lotes.filter(estado=estado)
+
+    # Ordenamiento
+    ordenar = request.GET.get('ordenar', 'nombre')
+    orden_map = {
+        'nombre': 'detalle_compra__producto__nombre',
+        'stock': 'detalle_compra__producto__stock',
+        'caducidad': 'fecha_caducidad',
+    }
+    campo_orden = orden_map.get(ordenar, 'detalle_compra__producto__nombre')
+    lotes = lotes.order_by(campo_orden)
+
+    ubicaciones = Ubicacion.objects.all().order_by('codigo')
+
+    return render(request, 'usuarios/inventario.html', {
+        'lotes': lotes,
+        'ubicaciones': ubicaciones,
+        'query': query,
+        'ubicacion_seleccionada': ubicacion_id,
+        'estado_seleccionado': estado,
+        'ordenar': ordenar,
     })
 
 

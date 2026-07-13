@@ -53,6 +53,10 @@
                     <i class="bi bi-cart-plus"></i>
                     <span>Compras</span>
                 </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'lista_inventario' %}active{% endif %}" href="{% url 'lista_inventario' %}">
+                    <i class="bi bi-clipboard-data"></i>
+                    <span>Inventario</span>
+                </a>
 
             {% elif user.rol == 'BODEGA' %}
                 <div class="nav-section">Principal</div>
@@ -75,6 +79,10 @@
                 <a class="nav-link {% if request.resolver_match.url_name == 'registrar_compra' %}active{% endif %}" href="{% url 'registrar_compra' %}">
                     <i class="bi bi-cart-plus"></i>
                     <span>Compras</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'lista_inventario' %}active{% endif %}" href="{% url 'lista_inventario' %}">
+                    <i class="bi bi-clipboard-data"></i>
+                    <span>Inventario</span>
                 </a>
 
             {% elif user.rol == 'VENDEDOR' %}

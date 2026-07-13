@@ -42,6 +42,11 @@ class Producto(models.Model):
 
     iva = models.DecimalField(max_digits=5, decimal_places=2)
 
+    stock = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Stock"
+    )
+
     estado = models.CharField(
         max_length=10,
         choices=ESTADOS,
@@ -187,6 +192,21 @@ class DetalleCompra(models.Model):
     def __str__(self):
         return f"{self.compra.numero_factura} - {self.producto.nombre}"
 
+class Ubicacion(models.Model):
+    planta = models.CharField(max_length=50, verbose_name="Planta")
+    pasillo = models.CharField(max_length=50, verbose_name="Pasillo")
+    estanteria = models.CharField(max_length=50, verbose_name="Estantería")
+    nivel = models.CharField(max_length=50, verbose_name="Nivel")
+    codigo = models.CharField(max_length=50, unique=True, verbose_name="Código")
+
+    class Meta:
+        verbose_name = "Ubicación"
+        verbose_name_plural = "Ubicaciones"
+
+    def __str__(self):
+        return f"{self.codigo} - {self.planta}/{self.pasillo}/{self.estanteria}/{self.nivel}"
+
+
 class Lote(models.Model):
 
     ESTADOS = [
@@ -214,6 +234,14 @@ class Lote(models.Model):
 
     cantidad_recibida = models.PositiveIntegerField(
         verbose_name="Cantidad Recibida"
+    )
+
+    ubicacion = models.ForeignKey(
+        Ubicacion,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name="Ubicación"
     )
 
     estado = models.CharField(

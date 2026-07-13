@@ -1,0 +1,78 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Crear Ubicación - PowerMedical{% endblock %}
+
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-geo-alt me-2"></i>Crear Ubicación</h2>
+</div>
+
+<div class="pm-form-section" style="max-width: 700px;">
+    <div class="section-title">Datos de la Ubicación</div>
+    <form method="post" novalidate class="pm-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="pm-alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-md-6 mb-3">
+                <label for="id_planta" class="form-label">{{ form.planta.label }}</label>
+                {{ form.planta }}
+                {% if form.planta.errors %}
+                    <div class="text-danger small mt-1">{{ form.planta.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_pasillo" class="form-label">{{ form.pasillo.label }}</label>
+                {{ form.pasillo }}
+                {% if form.pasillo.errors %}
+                    <div class="text-danger small mt-1">{{ form.pasillo.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_estanteria" class="form-label">{{ form.estanteria.label }}</label>
+                {{ form.estanteria }}
+                {% if form.estanteria.errors %}
+                    <div class="text-danger small mt-1">{{ form.estanteria.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="id_nivel" class="form-label">{{ form.nivel.label }}</label>
+                {{ form.nivel }}
+                {% if form.nivel.errors %}
+                    <div class="text-danger small mt-1">{{ form.nivel.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-12 mb-3">
+                <label for="id_codigo" class="form-label">{{ form.codigo.label }}</label>
+                {{ form.codigo }}
+                <div class="form-text">Código único que identifica la ubicación (Ej: PL1-PA-E3-N2)</div>
+                {% if form.codigo.errors %}
+                    <div class="text-danger small mt-1">{{ form.codigo.errors|striptags }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="javascript:history.back()" class="pm-btn pm-btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="pm-btn pm-btn-primary">
+                <i class="bi bi-check-lg"></i> Guardar Ubicación
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

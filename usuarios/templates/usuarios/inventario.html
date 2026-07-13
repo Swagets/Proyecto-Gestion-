@@ -1,0 +1,146 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Inventario - PowerMedical{% endblock %}
+
+{% block content %}
+
+<div class="pm-page-header">
+    <h2><i class="bi bi-clipboard-data me-2"></i>Inventario</h2>
+</div>
+
+<!-- Filtros -->
+<div class="pm-form-section">
+    <form method="GET" action="{% url 'lista_inventario' %}" class="row g-3 align-items-end">
+        <!-- Búsqueda por nombre -->
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Buscar producto</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" class="form-control" placeholder="Nombre del producto..." value="{{ query }}">
+            </div>
+        </div>
+
+        <!-- Filtro por ubicación -->
+        <div class="col-md-3">
+            <label class="form-label small text-muted">Ubicación</label>
+            <select name="ubicacion" class="form-select">
+                <option value="">Todas las ubicaciones</option>
+                {% for ub in ubicaciones %}
+                    <option value="{{ ub.id }}" {% if ubicacion_seleccionada == ub.id|stringformat:"d" %}selected{% endif %}>
+                        {{ ub.codigo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filtro por estado del lote -->
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Estado lote</label>
+            <select name="estado" class="form-select">
+                <option value="">Todos</option>
+                <option value="ACTIVO" {% if estado_seleccionado == 'ACTIVO' %}selected{% endif %}>Activo</option>
+                <option value="INACTIVO" {% if estado_seleccionado == 'INACTIVO' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+
+        <!-- Ordenar -->
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Ordenar por</label>
+            <select name="ordenar" class="form-select" onchange="this.form.submit()">
+                <option value="nombre" {% if ordenar == 'nombre' %}selected{% endif %}>Nombre</option>
+                <option value="stock" {% if ordenar == 'stock' %}selected{% endif %}>Stock</option>
+                <option value="caducidad" {% if ordenar == 'caducidad' %}selected{% endif %}>Caducidad</option>
+            </select>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-md-1 d-flex gap-1">
+            <button type="submit" class="pm-btn pm-btn-primary">
+                <i class="bi bi-funnel"></i>
+            </button>
+            {% if query or ubicacion_seleccionada or estado_seleccionado %}
+                <a href="{% url 'lista_inventario' %}" class="pm-btn pm-btn-outline-secondary">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de inventario -->
+<div class="pm-card">
+    <div class="pm-card-body p-0">
+        <div class="pm-table-responsive">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th class="text-center">Stock</th>
+                        <th>Lote</th>
+                        <th>Caducidad</th>
+                        <th>Ubicación</th>
+                        <th>Disponibilidad</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lote in lotes %}
+                    <tr>
+                        <td>
+                            <strong>{{ lote.detalle_compra.producto.nombre }}</strong>
+                            <div class="text-muted small">{{ lote.detalle_compra.producto.codigo }}</div>
+                        </td>
+                        <td>{{ lote.detalle_compra.producto.categoria }}</td>
+                        <td class="text-center">
+                            {% if lote.detalle_compra.producto.stock > 0 %}
+                                <span class="pm-badge pm-badge-success">{{ lote.detalle_compra.producto.stock }}</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-inactive">0</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ lote.numero_lote }}</strong></td>
+                        <td>
+                            {% if lote.fecha_caducidad %}
+                                {{ lote.fecha_caducidad|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if lote.ubicacion %}
+                                <span>{{ lote.ubicacion.codigo }}</span>
+                            {% else %}
+                                <span class="text-muted">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if lote.detalle_compra.producto.stock > 0 %}
+                                <span class="pm-badge pm-badge-success">Disponible</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-inactive">Sin stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if lote.estado == 'ACTIVO' %}
+                                <span class="pm-badge pm-badge-success">Activo</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-inactive">Inactivo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="pm-empty">
+                            <i class="bi bi-clipboard d-block"></i>
+                            <p>No se encontraron registros de inventario.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
