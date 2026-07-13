@@ -1,6 +1,8 @@
 from django import forms
-from .models import Usuario, Producto
+from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+import re
 
 class RegistroUsuarioForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -62,6 +64,47 @@ class EditarUsuarioForm(forms.ModelForm):
             'rol': forms.Select(attrs={'class': 'form-control'}),
         }
 
+#-------------------------Cliente----------------------------
+
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ['nombre', 'cedula_ruc', 'telefono', 'correo', 'direccion', 'estado']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan Pérez'}),
+            'cedula_ruc': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '10 (Cédula) o 13 (RUC) dígitos'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 0987654321'}),
+            'correo': forms.EmailInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'estado': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    # 1. Validación del Nombre
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        # Solo permite letras (incluyendo tildes y eñes) y espacios
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
+            raise ValidationError("El nombre solo debe contener letras y espacios.")
+        return nombre
+
+    # 2. Validación de Cédula/RUC (La que ya teníamos)
+    def clean_cedula_ruc(self):
+        cedula_ruc = self.cleaned_data.get('cedula_ruc')
+        if not cedula_ruc.isdigit():
+            raise ValidationError("Este campo debe contener únicamente números.")
+        if len(cedula_ruc) not in [10, 13]:
+            raise ValidationError("La Cédula debe tener 10 dígitos y el RUC 13 dígitos.")
+        return cedula_ruc
+
+    # 3. Validación del Teléfono
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if not telefono.isdigit():
+            raise ValidationError("El teléfono solo debe contener números.")
+        if len(telefono) < 9 or len(telefono) > 15:
+            raise ValidationError("El teléfono debe tener una longitud válida (9 a 15 dígitos).")
+        return telefono
+
 #------------Producto----------------
 class RegistroProductoForm(forms.ModelForm):
 
@@ -117,3 +160,137 @@ class RegistroProductoForm(forms.ModelForm):
                 )
 
         return cleaned_data
+
+
+class EditarProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        # He incluido todos los campos de tu modelo
+        fields = [
+            'codigo', 'nombre', 'descripcion', 'categoria', 
+            'laboratorio', 'unidad_medida', 'temperatura', 
+            'precio_compra', 'precio_venta', 'iva', 'estado'
+        ]
+        widgets = {
+            'codigo': forms.TextInput(attrs={'class': 'form-control','readonly':'readonly'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'categoria': forms.TextInput(attrs={'class': 'form-control'}),
+            'laboratorio': forms.TextInput(attrs={'class': 'form-control'}),
+            'unidad_medida': forms.TextInput(attrs={'class': 'form-control'}),
+            'temperatura': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'precio_compra': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'precio_venta': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'iva': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'estado': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'codigo': 'Código del Producto',
+            'temperatura': 'Temperatura (°C)',
+            'precio_compra': 'Precio de Compra',
+            'precio_venta': 'Precio de Venta',
+            'iva': 'IVA (%)',
+        }
+#+----------------------------PROVEEDOR-----------------------------------------------
+
+class ProveedorForm(forms.ModelForm):
+    class Meta:
+        model = Proveedor
+        # Se añaden 'contacto' y 'estado' para coincidir con el modelo
+        fields = [
+            'ruc', 
+            'nombre_empresa', 
+            'contacto', 
+            'telefono', 
+            'correo', 
+            'direccion', 
+            'estado'
+        ]
+        widgets = {
+            'ruc': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 1712345678001'}),
+            'nombre_empresa': forms.TextInput(attrs={'class': 'form-control'}),
+            'contacto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la persona de contacto'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 0987654321'}),
+            'correo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@empresa.com'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'estado': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    # Esta función se ejecuta automáticamente para validar el campo 'ruc'
+    def clean_ruc(self):
+        ruc = self.cleaned_data.get('ruc')
+        
+        # Validar que solo contenga números
+        if not ruc.isdigit():
+            raise forms.ValidationError("El RUC debe contener únicamente números.")
+            
+        # Validar que tenga exactamente 13 dígitos
+        if len(ruc) != 13:
+            raise forms.ValidationError("El RUC debe tener exactamente 13 dígitos.")
+            
+        return ruc
+
+    # Validación estricta para Cédula o RUC
+    def clean_cedula_ruc(self):
+        cedula_ruc = self.cleaned_data.get('cedula_ruc')
+        if not cedula_ruc.isdigit():
+            raise forms.ValidationError("Este campo debe contener únicamente números.")
+        if len(cedula_ruc) not in [10, 13]:
+            raise forms.ValidationError("La Cédula debe tener 10 dígitos y el RUC 13 dígitos.")
+        return cedula_ruc
+    
+#----------------------------Compra----------------------
+class CompraForm(forms.ModelForm):
+    class Meta:
+        model = Compra
+        # Los campos coinciden exactamente con el modelo Compra
+        fields = [
+            'proveedor', 
+            'fecha', 
+            'numero_factura', 
+            'observacion', 
+            'estado'
+        ]
+        
+        # Etiquetas personalizadas para que se vean mejor en el HTML (opcional pero recomendado)
+        labels = {
+            'proveedor': 'Proveedor',
+            'fecha': 'Fecha de Compra',
+            'numero_factura': 'Número de Factura',
+            'observacion': 'Observaciones',
+            'estado': 'Estado de la Compra'
+        }
+        
+        # Widgets con clases de Bootstrap para el diseño
+        widgets = {
+            'proveedor': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'fecha': forms.DateInput(attrs={
+                'class': 'form-control', 
+                'type': 'date' # Activa el calendario nativo del navegador
+            }),
+            'numero_factura': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Ej: 001-001-000012345'
+            }),
+            'observacion': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 3, # Cambiado a 3 para dar un poco más de espacio
+                'placeholder': 'Detalles adicionales de la entrega...'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+#-----------------------------RegistroDetalleCompra----------------------
+class RegistroDetalleCompraForm(forms.ModelForm):
+
+    class Meta:
+        model = DetalleCompra
+        fields = [
+            'compra',
+            'producto',
+            'cantidad',
+            'precio_unitario'
+        ]

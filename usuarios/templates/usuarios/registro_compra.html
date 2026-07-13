@@ -1,0 +1,58 @@
+{% extends 'usuarios/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow" style="max-width: 650px; margin: auto;">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">Registrar Factura de Compra</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row">
+                    <!-- Proveedor -->
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">{{ form.proveedor.label }}</label>
+                        {{ form.proveedor }}
+                        <div class="text-danger small">{{ form.proveedor.errors|striptags }}</div>
+                    </div>
+
+                    <!-- Fecha y Factura -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">{{ form.fecha.label }}</label>
+                        {{ form.fecha }}
+                        <div class="text-danger small">{{ form.fecha.errors|striptags }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Número de Factura</label>
+                        {{ form.numero_factura }}
+                        <div class="text-danger small">{{ form.numero_factura.errors|striptags }}</div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">{{ form.estado.label }}</label>
+                        {{ form.estado }}
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">{{ form.observacion.label }}</label>
+                        {{ form.observacion }}
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'dashboard_admin' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-dark">Continuar a Detalles</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

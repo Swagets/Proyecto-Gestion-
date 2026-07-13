@@ -1,0 +1,68 @@
+{% extends 'usuarios/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3>Productos</h3>
+            <a href="{% url 'registro_producto' %}" class="btn btn-light">
+                Nuevo Producto
+            </a>
+        </div>
+
+        <div class="card-body">
+            <!-- Buscador de productos -->
+            <form method="GET" action="{% url 'lista_productos' %}" class="mb-4">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar producto por nombre o código..." value="{{ query }}">
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                    {% if query %}
+                        <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary">Limpiar</a>
+                    {% endif %}
+                </div>
+            </form>
+
+            <!-- Tabla de inventario -->
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio Venta</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.codigo }}</td>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>${{ producto.precio_venta }}</td>
+                        <td>{{ producto.estado }}</td>
+                        <td>
+                            <!-- Lógica de permisos unida -->
+                            {% if user.is_superuser or user.rol == 'ADMIN' or user.rol == 'BODEGA' %}
+                                <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning btn-sm">
+                                    Editar
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">Sin permisos</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            No existen productos registrados o que coincidan con la búsqueda.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'usuarios/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow" style="max-width: 600px; margin: auto;">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">Editar Producto: {{ producto.nombre }}</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                
+                <div class="mt-4 d-flex justify-content-between">
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
