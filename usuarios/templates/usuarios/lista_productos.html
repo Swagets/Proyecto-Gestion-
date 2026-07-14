@@ -49,10 +49,12 @@
                         <td>{{ producto.nombre }}</td>
                         <td>{{ producto.categoria }}</td>
                         <td>
-                            {% if producto.stock > 0 %}
-                                <span class="pm-badge pm-badge-success">{{ producto.stock }}</span>
-                            {% else %}
+                            {% if producto.stock == 0 %}
                                 <span class="pm-badge pm-badge-inactive">0</span>
+                            {% elif producto.stock <= producto.stock_minimo %}
+                                <span class="pm-badge pm-badge-warning">{{ producto.stock }}</span>
+                            {% else %}
+                                <span class="pm-badge pm-badge-success">{{ producto.stock }}</span>
                             {% endif %}
                         </td>
                         <td>${{ producto.precio_venta }}</td>

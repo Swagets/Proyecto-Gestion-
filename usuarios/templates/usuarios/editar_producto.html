@@ -119,6 +119,14 @@
                         {% endif %}
                     </div>
                 </div>
+
+                <div class="mb-3">
+                    <label for="id_stock_minimo" class="form-label">{{ form.stock_minimo.label }}</label>
+                    {{ form.stock_minimo }}
+                    {% if form.stock_minimo.errors %}
+                        <div class="text-danger small mt-1">{{ form.stock_minimo.errors|striptags }}</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 

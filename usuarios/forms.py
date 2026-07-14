@@ -121,8 +121,12 @@ class RegistroProductoForm(forms.ModelForm):
             'precio_compra',
             'precio_venta',
             'iva',
+            'stock_minimo',
             'estado'
         ]
+        widgets = {
+            'stock_minimo': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+        }
     def clean_codigo(self):
         codigo = self.cleaned_data['codigo']
 
@@ -169,7 +173,7 @@ class EditarProductoForm(forms.ModelForm):
         fields = [
             'codigo', 'nombre', 'descripcion', 'categoria', 
             'laboratorio', 'unidad_medida', 'temperatura', 
-            'precio_compra', 'precio_venta', 'iva', 'estado'
+            'precio_compra', 'precio_venta', 'iva', 'stock_minimo', 'estado'
         ]
         widgets = {
             'codigo': forms.TextInput(attrs={'class': 'form-control','readonly':'readonly'}),
@@ -182,6 +186,7 @@ class EditarProductoForm(forms.ModelForm):
             'precio_compra': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'precio_venta': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'iva': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'stock_minimo': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
             'estado': forms.Select(attrs={'class': 'form-select'}),
         }
         labels = {
@@ -190,6 +195,7 @@ class EditarProductoForm(forms.ModelForm):
             'precio_compra': 'Precio de Compra',
             'precio_venta': 'Precio de Venta',
             'iva': 'IVA (%)',
+            'stock_minimo': 'Stock Mínimo',
         }
 
     def clean_precio_compra(self):

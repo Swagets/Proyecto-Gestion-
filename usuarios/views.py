@@ -418,7 +418,12 @@ def registrar_lote(request, detalle_id):
                     lote.save()
 
                     producto = detalle.producto
-                    producto.stock += lote.cantidad_recibida
+                    producto.stock = sum(
+                        l.cantidad_recibida
+                        for l in Lote.objects.filter(
+                            detalle_compra__producto=producto
+                        )
+                    )
                     producto.save(update_fields=['stock'])
 
                     messages.success(
