@@ -6,7 +6,6 @@
 (function () {
     'use strict';
 
-    let rowIndex = 0;
     let productosData = [];
 
     function init() {
@@ -33,17 +32,24 @@
         recalculate();
     }
 
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+
     function addRow() {
-        const container = document.getElementById('detalles-container');
+        var container = document.getElementById('detalles-container');
         if (!container) return;
 
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-row-index', rowIndex);
+        var rowIndex = container.querySelectorAll('tr').length;
 
-        let optionsHtml = '<option value="">-- Seleccionar --</option>';
+        var tr = document.createElement('tr');
+
+        var optionsHtml = '<option value="">-- Seleccionar --</option>';
         productosData.forEach(function (p) {
-            optionsHtml += '<option value="' + p.id + '" data-precio="' + p.precio + '">' +
-                p.codigo + ' - ' + p.nombre + '</option>';
+            optionsHtml += '<option value="' + p.id + '" data-precio="' + p.precio_venta + '">' +
+                escapeHtml(p.codigo) + ' - ' + escapeHtml(p.nombre) + '</option>';
         });
 
         tr.innerHTML =
@@ -65,13 +71,13 @@
 
         container.appendChild(tr);
 
-        var select = tr.querySelector('select');
+        var sel = tr.querySelector('select');
         var cantidad = tr.querySelector('input[name^="det_cantidad"]');
         var precio = tr.querySelector('input[name^="det_precio"]');
         var btnRemove = tr.querySelector('.btn-remove-row');
 
-        select.addEventListener('change', function () {
-            var opt = select.options[select.selectedIndex];
+        sel.addEventListener('change', function () {
+            var opt = sel.options[sel.selectedIndex];
             var precioVal = opt.getAttribute('data-precio');
             if (precioVal) {
                 precio.value = parseFloat(precioVal).toFixed(2);
@@ -84,10 +90,27 @@
 
         btnRemove.addEventListener('click', function () {
             tr.remove();
+            renumberRows();
             recalculate();
         });
 
-        rowIndex++;
+        recalculate();
+    }
+
+    function renumberRows() {
+        var container = document.getElementById('detalles-container');
+        if (!container) return;
+
+        var rows = container.querySelectorAll('tr');
+        rows.forEach(function (row, idx) {
+            var select = row.querySelector('select');
+            var cantidad = row.querySelector('input[name^="det_cantidad"]');
+            var precio = row.querySelector('input[name^="det_precio"]');
+
+            if (select) select.name = 'det_producto_' + idx;
+            if (cantidad) cantidad.name = 'det_cantidad_' + idx;
+            if (precio) precio.name = 'det_precio_' + idx;
+        });
     }
 
     function recalculate() {

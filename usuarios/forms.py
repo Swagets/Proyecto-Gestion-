@@ -191,6 +191,29 @@ class EditarProductoForm(forms.ModelForm):
             'precio_venta': 'Precio de Venta',
             'iva': 'IVA (%)',
         }
+
+    def clean_precio_compra(self):
+        precio = self.cleaned_data['precio_compra']
+        if precio <= 0:
+            raise forms.ValidationError("El precio de compra debe ser mayor a 0.")
+        return precio
+
+    def clean_precio_venta(self):
+        precio = self.cleaned_data['precio_venta']
+        if precio <= 0:
+            raise forms.ValidationError("El precio de venta debe ser mayor a 0.")
+        return precio
+
+    def clean(self):
+        cleaned_data = super().clean()
+        compra = cleaned_data.get('precio_compra')
+        venta = cleaned_data.get('precio_venta')
+        if compra and venta:
+            if venta < compra:
+                raise forms.ValidationError(
+                    "El precio de venta no puede ser menor al precio de compra."
+                )
+        return cleaned_data
 #+----------------------------PROVEEDOR-----------------------------------------------
 
 class ProveedorForm(forms.ModelForm):
@@ -229,15 +252,6 @@ class ProveedorForm(forms.ModelForm):
             raise forms.ValidationError("El RUC debe tener exactamente 13 dígitos.")
             
         return ruc
-
-    # Validación estricta para Cédula o RUC
-    def clean_cedula_ruc(self):
-        cedula_ruc = self.cleaned_data.get('cedula_ruc')
-        if not cedula_ruc.isdigit():
-            raise forms.ValidationError("Este campo debe contener únicamente números.")
-        if len(cedula_ruc) not in [10, 13]:
-            raise forms.ValidationError("La Cédula debe tener 10 dígitos y el RUC 13 dígitos.")
-        return cedula_ruc
     
 #----------------------------Compra----------------------
 class CompraForm(forms.ModelForm):
@@ -249,7 +263,6 @@ class CompraForm(forms.ModelForm):
             'fecha', 
             'numero_factura', 
             'observacion', 
-            'estado'
         ]
         
         # Etiquetas personalizadas para que se vean mejor en el HTML (opcional pero recomendado)
@@ -258,7 +271,6 @@ class CompraForm(forms.ModelForm):
             'fecha': 'Fecha de Compra',
             'numero_factura': 'Número de Factura',
             'observacion': 'Observaciones',
-            'estado': 'Estado de la Compra'
         }
         
         # Widgets con clases de Bootstrap para el diseño
@@ -279,9 +291,6 @@ class CompraForm(forms.ModelForm):
                 'rows': 3, # Cambiado a 3 para dar un poco más de espacio
                 'placeholder': 'Detalles adicionales de la entrega...'
             }),
-            'estado': forms.Select(attrs={
-                'class': 'form-select'
-            }),
         }
 #-----------------------------Venta----------------------
 class VentaForm(forms.ModelForm):
@@ -292,7 +301,6 @@ class VentaForm(forms.ModelForm):
             'fecha',
             'numero_factura',
             'observacion',
-            'estado'
         ]
 
         labels = {
@@ -300,7 +308,6 @@ class VentaForm(forms.ModelForm):
             'fecha': 'Fecha de Venta',
             'numero_factura': 'Número de Factura',
             'observacion': 'Observaciones',
-            'estado': 'Estado de la Venta'
         }
 
         widgets = {
@@ -319,9 +326,6 @@ class VentaForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Detalles adicionales de la venta...'
-            }),
-            'estado': forms.Select(attrs={
-                'class': 'form-select'
             }),
         }
 #-----------------------------RegistroDetalleCompra----------------------
@@ -397,12 +401,6 @@ class LoteForm(forms.ModelForm):
         if cantidad is not None and cantidad <= 0:
             raise forms.ValidationError("La cantidad debe ser mayor a cero.")
         return cantidad
-
-    def clean_ubicacion(self):
-        ubicacion = self.cleaned_data.get('ubicacion')
-        if not ubicacion:
-            raise forms.ValidationError("Debe seleccionar una ubicación.")
-        return ubicacion
 
 
 #-----------------------------Ubicacion----------------------

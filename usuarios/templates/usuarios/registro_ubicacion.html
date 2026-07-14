@@ -12,6 +12,9 @@
     <div class="section-title">Datos de la Ubicación</div>
     <form method="post" novalidate class="pm-form">
         {% csrf_token %}
+        {% if detalle_id %}
+            <input type="hidden" name="detalle_id" value="{{ detalle_id }}">
+        {% endif %}
 
         {% if form.non_field_errors %}
             <div class="pm-alert alert-danger">
@@ -65,7 +68,7 @@
         </div>
 
         <div class="mt-4 d-flex justify-content-end gap-2">
-            <a href="javascript:history.back()" class="pm-btn pm-btn-outline-secondary">
+            <a href="{% url 'redireccion_rol' %}" class="pm-btn pm-btn-outline-secondary">
                 <i class="bi bi-x-lg"></i> Cancelar
             </a>
             <button type="submit" class="pm-btn pm-btn-primary">

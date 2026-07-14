@@ -4,19 +4,23 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.core.exceptions import ValidationError
 from django.db.models import Q, F, Sum
 from django.db import transaction
+from django.http import HttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
 
 from .forms import (
     EditarUsuarioForm, RegistroProductoForm, EditarProductoForm,
-    ProveedorForm, ClienteForm, CompraForm, RegistroDetalleCompraForm,
+    ProveedorForm, ClienteForm, CompraForm,
     LoteForm, UbicacionForm, VentaForm,
 )
-from .models import Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra, Lote, Ubicacion, Venta, DetalleVenta
+from .models import (
+    Usuario, Producto, Proveedor, Cliente, Compra, DetalleCompra,
+    Lote, Ubicacion, Venta, DetalleVenta,
+)
 
 
 # ============================================
@@ -58,17 +62,22 @@ def redireccion_por_rol(request):
 # ============================================
 @roles_permitidos('ADMIN')
 def dashboard_admin(request):
-    usuarios = Usuario.objects.all()
-    return render(request, 'usuarios/dashboard_admin.html', {'usuarios': usuarios})
+    context = {
+        'usuarios': Usuario.objects.all(),
+        'productos_count': Producto.objects.filter(estado='ACTIVO').count(),
+        'proveedores_count': Proveedor.objects.filter(estado='ACTIVO').count(),
+        'clientes_count': Cliente.objects.filter(estado='ACTIVO').count(),
+    }
+    return render(request, 'usuarios/dashboard_admin.html', context)
 
 
 @roles_permitidos('BODEGA')
 def dashboard_bodega(request):
     productos = Producto.objects.filter(estado='ACTIVO')
-    compras_recientes = Compra.objects.order_by('-fecha')[:5]
     context = {
         'productos_count': productos.count(),
-        'compras_recientes': compras_recientes,
+        'proveedores_count': Proveedor.objects.filter(estado='ACTIVO').count(),
+        'compras_recientes': Compra.objects.order_by('-fecha')[:5],
     }
     return render(request, 'usuarios/dashboard_bodega.html', context)
 
@@ -79,6 +88,8 @@ def dashboard_vendedor(request):
     context = {
         'clientes_count': clientes.count(),
         'clientes_recientes': clientes.order_by('-id')[:5],
+        'productos_count': Producto.objects.filter(estado='ACTIVO').count(),
+        'ventas_count': Venta.objects.count(),
     }
     return render(request, 'usuarios/dashboard_vendedor.html', context)
 
@@ -209,41 +220,42 @@ def registrar_compra(request):
     if request.method == 'POST':
         form = CompraForm(request.POST)
         if form.is_valid():
-            compra = form.save()
+            with transaction.atomic():
+                compra = form.save()
 
-            detalles_creados = 0
-            i = 0
-            while True:
-                producto_id = request.POST.get(f'det_producto_{i}')
-                cantidad = request.POST.get(f'det_cantidad_{i}')
-                precio = request.POST.get(f'det_precio_{i}')
+                detalles_creados = 0
+                i = 0
+                while True:
+                    producto_id = request.POST.get(f'det_producto_{i}')
+                    cantidad = request.POST.get(f'det_cantidad_{i}')
+                    precio = request.POST.get(f'det_precio_{i}')
 
-                if producto_id is None:
-                    break
+                    if producto_id is None:
+                        break
 
-                if producto_id and cantidad and precio:
-                    try:
-                        producto = Producto.objects.get(id=int(producto_id))
-                        cant = int(cantidad)
-                        prec = float(precio)
+                    if producto_id and cantidad and precio:
+                        try:
+                            producto = Producto.objects.get(id=int(producto_id))
+                            cant = int(cantidad)
+                            prec = float(precio)
 
-                        if cant > 0 and prec > 0:
-                            DetalleCompra.objects.create(
-                                compra=compra,
-                                producto=producto,
-                                cantidad=cant,
-                                precio_unitario=prec,
-                            )
-                            detalles_creados += 1
-                    except (Producto.DoesNotExist, ValueError):
-                        pass
+                            if cant > 0 and prec > 0:
+                                DetalleCompra.objects.create(
+                                    compra=compra,
+                                    producto=producto,
+                                    cantidad=cant,
+                                    precio_unitario=prec,
+                                )
+                                detalles_creados += 1
+                        except (Producto.DoesNotExist, ValueError):
+                            pass
 
-                i += 1
+                    i += 1
 
-            if detalles_creados > 0:
-                messages.success(request, f'Compra registrada exitosamente con {detalles_creados} producto(s).')
-            else:
-                messages.warning(request, 'Compra registrada sin detalles.')
+                if detalles_creados > 0:
+                    messages.success(request, f'Compra registrada exitosamente con {detalles_creados} producto(s).')
+                else:
+                    messages.warning(request, 'Compra registrada sin detalles.')
 
             return redirect('redireccion_rol')
     else:
@@ -305,7 +317,7 @@ def registrar_venta(request):
                         i += 1
 
                     if detalles_creados == 0:
-                        raise forms.ValidationError('Debe agregar al menos un producto.')
+                        raise ValidationError('Debe agregar al menos un producto.')
 
                     # FIFO: descontar stock de lotes por caducidad más próxima
                     detalles = venta.detalles.select_related('producto')
@@ -328,7 +340,7 @@ def registrar_venta(request):
                             restante -= descuento
 
                         if restante > 0:
-                            raise forms.ValidationError(
+                            raise ValidationError(
                                 f'Stock insuficiente para "{producto.nombre}". '
                                 f'Faltan {restante} unidad(es).'
                             )
@@ -345,8 +357,8 @@ def registrar_venta(request):
                     )
                     return redirect('redireccion_rol')
 
-            except forms.ValidationError as e:
-                messages.error(request, str(e.message))
+            except ValidationError as e:
+                messages.error(request, e.message)
     else:
         form = VentaForm()
 
@@ -385,7 +397,6 @@ def lista_lotes_compra(request, compra_id):
 def registrar_lote(request, detalle_id):
     detalle = get_object_or_404(DetalleCompra, id=detalle_id)
 
-    # Calcular cantidad total ya registrada en lotes
     cantidad_ya_registrada = sum(
         l.cantidad_recibida for l in detalle.lotes.all()
     )
@@ -398,7 +409,6 @@ def registrar_lote(request, detalle_id):
                 lote = form.save(commit=False)
                 lote.detalle_compra = detalle
 
-                # Validar que la cantidad no exceda la disponible
                 if lote.cantidad_recibida > cantidad_disponible:
                     form.add_error(
                         'cantidad_recibida',
@@ -407,7 +417,6 @@ def registrar_lote(request, detalle_id):
                 else:
                     lote.save()
 
-                    # Actualizar stock del producto
                     producto = detalle.producto
                     producto.stock += lote.cantidad_recibida
                     producto.save(update_fields=['stock'])
@@ -430,6 +439,8 @@ def registrar_lote(request, detalle_id):
 
 @roles_permitidos('ADMIN', 'BODEGA')
 def crear_ubicacion(request):
+    detalle_id = request.GET.get('detalle_id') or request.POST.get('detalle_id')
+
     if request.method == 'POST':
         form = UbicacionForm(request.POST)
         if form.is_valid():
@@ -438,11 +449,16 @@ def crear_ubicacion(request):
                 request,
                 f'Ubicación {ubicacion.codigo} creada exitosamente.'
             )
-            return redirect('registrar_lote', detalle_id=int(request.GET.get('detalle_id')))
+            if detalle_id:
+                return redirect('registrar_lote', detalle_id=int(detalle_id))
+            return redirect('redireccion_rol')
     else:
         form = UbicacionForm()
 
-    return render(request, 'usuarios/registro_ubicacion.html', {'form': form})
+    return render(request, 'usuarios/registro_ubicacion.html', {
+        'form': form,
+        'detalle_id': detalle_id,
+    })
 
 
 # ============================================
@@ -458,24 +474,20 @@ def lista_inventario(request):
         'ubicacion',
     ).filter(detalle_compra__producto__estado='ACTIVO')
 
-    # Búsqueda por nombre de producto
     query = request.GET.get('q', '')
     if query:
         lotes = lotes.filter(
             detalle_compra__producto__nombre__icontains=query
         )
 
-    # Filtro por ubicación
     ubicacion_id = request.GET.get('ubicacion', '')
     if ubicacion_id:
         lotes = lotes.filter(ubicacion_id=ubicacion_id)
 
-    # Filtro por estado del lote
     estado = request.GET.get('estado', '')
     if estado:
         lotes = lotes.filter(estado=estado)
 
-    # Filtros de alerta (solo uno a la vez)
     stock_bajo = request.GET.get('stock_bajo', '')
     agotados = request.GET.get('agotados', '')
     caducar = request.GET.get('caducar', '')
@@ -495,7 +507,6 @@ def lista_inventario(request):
             fecha_caducidad__gte=hoy,
         )
 
-    # Ordenamiento
     ordenar = request.GET.get('ordenar', 'nombre')
     orden_map = {
         'nombre': 'detalle_compra__producto__nombre',
@@ -507,9 +518,7 @@ def lista_inventario(request):
 
     ubicaciones = Ubicacion.objects.all().order_by('codigo')
 
-    # Estadísticas para tarjetas de resumen (productos distintos)
     base_productos = Producto.objects.filter(estado='ACTIVO')
-
     total_productos = base_productos.count()
 
     disponibles = base_productos.filter(

@@ -38,21 +38,21 @@
                 <i class="bi bi-box-seam"></i>
             </div>
             <div class="pm-stat-info">
-                <h3>&nbsp;</h3>
+                <h3>{{ productos_count }}</h3>
                 <p>Productos</p>
             </div>
         </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="pm-stat-card">
+        <a href="{% url 'registrar_venta' %}" class="pm-stat-card">
             <div class="pm-stat-icon" style="background:#6f42c1">
                 <i class="bi bi-graph-up"></i>
             </div>
             <div class="pm-stat-info">
-                <h3>&nbsp;</h3>
+                <h3>{{ ventas_count }}</h3>
                 <p>Ventas</p>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 
